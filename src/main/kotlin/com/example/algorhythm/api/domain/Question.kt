@@ -1,5 +1,7 @@
 package com.example.algorhythm.api.domain
 
+import com.example.algorhythm.api.enum.QuestionDifficulty
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import jakarta.persistence.*
 
 @Entity
@@ -10,7 +12,9 @@ data class Question (
     val id: Long = 0,
 
     val topic: String,
-    val difficulty: String,
+
+    @Enumerated(EnumType.STRING)
+    val difficulty: QuestionDifficulty,
 
     @Column(columnDefinition = "TEXT")
     val prompt: String,
@@ -19,5 +23,6 @@ data class Question (
     val hints: String? = null,
 
     @OneToMany(mappedBy = "question", cascade = [CascadeType.ALL], fetch = FetchType.EAGER)
+    @JsonManagedReference
     val ioPairs:MutableList<IOPair> = mutableListOf()
 )
