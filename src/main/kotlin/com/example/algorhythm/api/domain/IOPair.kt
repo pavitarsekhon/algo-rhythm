@@ -10,7 +10,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 
 @Entity
-data class IOPair(
+class IOPair(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

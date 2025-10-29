@@ -1,15 +1,19 @@
 package com.example.algorhythm.api.domain
 
+import com.example.algorhythm.api.enum.ExecutionType
 import com.example.algorhythm.api.enum.QuestionDifficulty
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import jakarta.persistence.*
 
 @Entity
-data class Question (
+class Question (
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
+
+    @Enumerated(EnumType.STRING)
+    val executionType: ExecutionType = ExecutionType.STDIN,
 
     val topic: String,
 
