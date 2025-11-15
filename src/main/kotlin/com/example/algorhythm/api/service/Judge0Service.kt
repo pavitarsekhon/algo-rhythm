@@ -1,9 +1,10 @@
 package com.example.algorhythm.api.service
 
-import com.example.algorhythm.api.controller.QuestionController
 import com.example.algorhythm.api.enum.ExecutionType
 import com.example.algorhythm.api.repository.IOPairRepository
 import com.example.algorhythm.api.repository.QuestionRepository
+import com.example.algorhythm.api.controller.QuestionController.CodeSubmissionRequest
+import com.example.algorhythm.consts.SUPPORTED_LANGUAGES
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 
@@ -11,37 +12,47 @@ import org.springframework.web.reactive.function.client.WebClient
 class Judge0Service(
     private val webClient: WebClient,
     private val questionRepository: QuestionRepository,
-    private val ioPairRepository: IOPairRepository
+    private val ioPairRepository: IOPairRepository,
+    private val userSessionService: UserSessionService
 ) {
-
-     private fun runCode(code: String, language: String, input: String? = null): Judge0ResultResponse {
-        val requestBody = mapOf(
+    fun runCode(code: String, language: String, input: String? = null): Judge0ResultResponse {
+         val requestBody = mapOf(
             "source_code" to code,
-            "language_id" to PYTHON_ID,
+            "language_id" to SUPPORTED_LANGUAGES[language],
             "stdin" to (input ?: "")
-        )
-
-        val response = webClient.post()
-            .uri(SUBMISSION_URL)
-            .bodyValue(requestBody)
-            .retrieve()
-            .bodyToMono(Judge0SubmissionResponse::class.java)
-            .block() ?: throw RuntimeException("No response from Judge0")
-
-        val token = response.token
-        return getResult(token)
-
+         )
+         val response = try {
+             webClient.post()
+                 .uri(SUBMISSION_URL)
+                 .bodyValue(requestBody)
+                 .retrieve()
+                 .bodyToMono(Judge0SubmissionResponse::class.java)
+                 .block() ?: throw RuntimeException("No response from Judge0")
+         } catch (_: Exception) {
+             error("ERROR: Submission of code to Judge0 failed")
+         }
+         return getResult(response.token)
     }
 
     private fun getResult(token: String): Judge0ResultResponse {
-        return webClient.get()
-            .uri("$SUBMISSION_URL/$token")
-            .retrieve()
-            .bodyToMono(Judge0ResultResponse::class.java)
-            .block() ?: throw RuntimeException("No result from Judge0")
+        var delay = 50L
+        while (true) {
+            val result = webClient.get()
+                .uri("$SUBMISSION_URL/$token")
+                .retrieve()
+                .bodyToMono(Judge0ResultResponse::class.java)
+                .block() ?: throw RuntimeException("No result from Judge0")
+
+            if (result.status.id >= 3) { // execution finished
+                return result
+            }
+
+            Thread.sleep(delay)
+            delay = (delay * 1.5).coerceAtMost(1000.0).toLong() // gradually increase delay up to 1s
+        }
     }
 
-    fun submitCode(request: QuestionController.CodeSubmissionRequest): SubmitResultResponse {
+    fun submitCode(request: CodeSubmissionRequest): SubmitResultResponse {
         val questionId = request.questionId
         val question = questionRepository.findById(questionId)
             .orElseThrow { IllegalArgumentException("Question not found") }
@@ -68,7 +79,11 @@ class Judge0Service(
             results.add(TestResult(pair.inputText, expected, output, correct))
         }
 
-        return SubmitResultResponse(results.all { it.correct }, results)
+        val testsPassed = results.all { it.correct }
+        if (testsPassed) {
+            userSessionService.increaseDifficulty()
+        }
+        return SubmitResultResponse(testsPassed, results)
 
     }
 
@@ -134,5 +149,11 @@ data class TestResult(
 
 data class SubmitResultResponse(
     val allPassed: Boolean,
-    val results: List<TestResult>
+    val results: List<TestResult>,
+    val error: String? = null
+)
+
+data class RunCodeResponse(
+    val output: String?,
+    val error: String? = null
 )
