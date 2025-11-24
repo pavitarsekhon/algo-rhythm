@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Box, Heading, Text, Table, Thead, Tr, Th, Tbody, Td, useColorMode, Flex } from "@chakra-ui/react";
 import ChatBox from "../components/ChatBox";
-import CodeEditor from "../components/CodeEditor"
-import {getNextQuestion} from "../api/questionsApi";
+import CodeEditor from "../components/CodeEditor";
+import { getNextQuestion } from "../api/questionsApi";
+import { useNavigate } from "react-router-dom";
 
 function QuestionPage() {
+    const navigate = useNavigate();
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            navigate("/");
+        }
+    }, []);
     const [question, setQuestion] = useState(null);
-    const [code] = useState("");
-    const [language] = useState("python");
-    const [output, setOutput] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const { colorMode } = useColorMode();
 
     useEffect(() => {
         getNextQuestion()
@@ -18,65 +20,102 @@ function QuestionPage() {
             .catch((err) => console.error("Failed to fetch question:", err));
     }, []);
 
+    const loadNextQuestion = () => {
+        getNextQuestion()
+            .then((res) => setQuestion(res.data))
+            .catch((err) => console.error("Failed to fetch question:", err));
+    };
+
+    const getDifficultyColor = (difficulty) => {
+        const colors = {
+            easy: "#10b981",
+            medium: "#f59e0b",
+            hard: "#ef4444"
+        };
+        return colors[difficulty?.toLowerCase()] || "#6b7280";
+    };
 
     return (
-        <Flex height="100vh" overflow="hidden">
-            {/* LEFT SIDE — Question, Editor, and Results */}
-            <Box flex="2" p={6} overflowY="auto">
-
-                <Text fontSize="xl" mb={3}>
-                    {question ? question.prompt : "Loading question..."}
-                </Text>
-
-                <CodeEditor question={question}/>
-
-                {output && (
-                    <Box mt={6}>
-                        <Heading size="md" mb={2}>
-                            Results
-                        </Heading>
-                        {output.allPassed ? (
-                            <Text color="green.400" fontWeight="bold">
-                                ✅ All test cases passed!
-                            </Text>
-                        ) : (
-                            <Box>
-                                <Text color="red.400" fontWeight="bold" mb={2}>
-                                    ❌ Some test cases failed:
-                                </Text>
-                                <Table variant="simple" size="sm">
-                                    <Thead>
-                                        <Tr>
-                                            <Th>Input</Th>
-                                            <Th>Expected</Th>
-                                            <Th>Your Output</Th>
-                                            <Th>Status</Th>
-                                        </Tr>
-                                    </Thead>
-                                    <Tbody>
-                                        {output.results.map((r, i) => (
-                                            <Tr key={i}>
-                                                <Td>{r.input || "(none)"}</Td>
-                                                <Td>{r.expected || "(empty)"}</Td>
-                                                <Td>{r.actual || "(empty)"}</Td>
-                                                <Td color={r.correct ? "green.400" : "red.400"}>
-                                                    {r.correct ? "✅ Correct" : "❌ Incorrect"}
-                                                </Td>
-                                            </Tr>
-                                        ))}
-                                    </Tbody>
-                                </Table>
-                            </Box>
+        <div style={{
+            display: "flex",
+            height: "calc(100vh - 70px)",
+            background: "#f8fafc"
+        }}>
+            {/* LEFT SIDE - Question & Editor */}
+            <div style={{
+                flex: "2",
+                padding: "40px",
+                overflowY: "auto",
+                background: "#f8fafc"
+            }}>
+                {/* Question Card */}
+                <div style={{
+                    background: "white",
+                    borderRadius: "16px",
+                    padding: "32px",
+                    marginBottom: "24px",
+                    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+                    border: "1px solid #e5e7eb"
+                }}>
+                    <div style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        marginBottom: "16px"
+                    }}>
+                        <h1 style={{
+                            fontSize: "24px",
+                            fontWeight: "700",
+                            color: "#1a1a1a",
+                            margin: 0
+                        }}>
+                            {question?.topic || "Loading..."}
+                        </h1>
+                        {question?.difficulty && (
+                            <span style={{
+                                padding: "6px 16px",
+                                borderRadius: "20px",
+                                fontSize: "13px",
+                                fontWeight: "600",
+                                background: getDifficultyColor(question.difficulty) + "15",
+                                color: getDifficultyColor(question.difficulty),
+                                textTransform: "capitalize"
+                            }}>
+                                {question.difficulty}
+                            </span>
                         )}
-                    </Box>
-                )}
-            </Box>
+                    </div>
+                    <p style={{
+                        fontSize: "16px",
+                        lineHeight: "1.7",
+                        color: "#4b5563",
+                        margin: 0
+                    }}>
+                        {question?.prompt || "Loading question..."}
+                    </p>
+                </div>
 
-            {/* RIGHT SIDE — ChatBox */}
-            <Box flex="1" borderLeft="1px solid" borderColor="gray.600" bg={colorMode === "dark" ? "gray.800" : "gray.50"}>
+                {/* Code Editor Card */}
+                <div style={{
+                    background: "white",
+                    borderRadius: "16px",
+                    padding: "32px",
+                    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+                    border: "1px solid #e5e7eb"
+                }}>
+                    <CodeEditor question={question} onNextQuestion={loadNextQuestion} />
+                </div>
+            </div>
+
+            {/* RIGHT SIDE - ChatBox */}
+            <div style={{
+                width: "420px",
+                borderLeft: "1px solid #e5e7eb",
+                background: "white"
+            }}>
                 <ChatBox />
-            </Box>
-        </Flex>
+            </div>
+        </div>
     );
 }
 

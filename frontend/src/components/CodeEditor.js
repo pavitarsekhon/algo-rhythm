@@ -6,7 +6,7 @@ import {CODE_SNIPPETS} from "../constants";
 import Output from "./Output";
 import {HStack} from "@chakra-ui/icons";
 
-const CodeEditor = ({question}) => {
+const CodeEditor = ({question, onNextQuestion }) => {
     const editorRef = useRef()
     const [value, setValue] = useState('')
     const [language, setLanguage] = useState('python')
@@ -35,7 +35,20 @@ const CodeEditor = ({question}) => {
                     />
                 </Box>
                     <Box w="100%" display="flex" justifyContent="flex-start">
-                        <Output editorRef={editorRef} language={language} question={question}/>
+                        <Box>
+                            <VStack spacing={4}>
+                                ...
+                                <Output
+                                    editorRef={editorRef}
+                                    language={language}
+                                    question={question}
+                                    onNextQuestion={() => {
+                                        setValue(""); // Clear editor
+                                        onNextQuestion();
+                                    }}
+                                />
+                            </VStack>
+                        </Box>
                     </Box>
             </VStack>
         </Box>
