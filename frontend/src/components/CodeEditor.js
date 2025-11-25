@@ -6,13 +6,14 @@ import {CODE_SNIPPETS} from "../constants";
 import Output from "./Output";
 import {HStack} from "@chakra-ui/icons";
 
-const CodeEditor = ({question, onNextQuestion }) => {
+const CodeEditor = ({question, onNextQuestion, onEditorRef }) => {
     const editorRef = useRef()
     const [value, setValue] = useState('')
     const [language, setLanguage] = useState('python')
     const onMount = (editor) => {
         editorRef.current = editor;
         editor.focus();
+        onEditorRef(editorRef);
     }
 
     const onSelect = (language) => {

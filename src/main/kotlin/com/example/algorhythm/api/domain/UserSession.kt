@@ -1,17 +1,19 @@
 package com.example.algorhythm.api.domain
 
 import com.example.algorhythm.api.enum.QuestionDifficulty
-import jakarta.persistence.Entity
-import jakarta.persistence.EnumType
-import jakarta.persistence.Enumerated
-import jakarta.persistence.Id
+import jakarta.persistence.*
 import java.util.UUID
 
 @Entity
 data class UserSession(
 
     @Id
-    val sessionId: String = UUID.randomUUID().toString(),
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long? = null,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    val user: User,
 
     val active: Boolean = false,
 

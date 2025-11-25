@@ -20,6 +20,8 @@ function QuestionPage() {
             .catch((err) => console.error("Failed to fetch question:", err));
     }, []);
 
+    const [editorRef, setEditorRef] = useState(null)
+
     const loadNextQuestion = () => {
         getNextQuestion()
             .then((res) => setQuestion(res.data))
@@ -103,7 +105,7 @@ function QuestionPage() {
                     boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
                     border: "1px solid #e5e7eb"
                 }}>
-                    <CodeEditor question={question} onNextQuestion={loadNextQuestion} />
+                    <CodeEditor question={question} onNextQuestion={loadNextQuestion} onEditorRef={setEditorRef}/>
                 </div>
             </div>
 
@@ -113,7 +115,7 @@ function QuestionPage() {
                 borderLeft: "1px solid #e5e7eb",
                 background: "white"
             }}>
-                <ChatBox />
+                <ChatBox editorRef={editorRef}/>
             </div>
         </div>
     );

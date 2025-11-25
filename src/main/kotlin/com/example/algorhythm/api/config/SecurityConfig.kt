@@ -24,9 +24,15 @@ class SecurityConfig(private val jwtUtil: JwtUtil) {
             .csrf { it.disable() }
             .authorizeHttpRequests {
                 it.requestMatchers("/api/auth/**").permitAll()
-                    .anyRequest().authenticated()
+                it.requestMatchers("/api/chat").permitAll()   // 👈 place BEFORE anyRequest
+                it.requestMatchers("/api/questions/run").permitAll() // optional if needed
+                it.requestMatchers("/api/questions/submit").authenticated()
+                it.requestMatchers("/api/questions/next").authenticated()
+
+                it.anyRequest().authenticated()              // 👈 ALWAYS LAST
             }
             .addFilterBefore(JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter::class.java)
+
         return http.build()
     }
 
