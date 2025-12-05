@@ -52,7 +52,7 @@ class Judge0Service(
         }
     }
 
-    fun submitCode(request: CodeSubmissionRequest): SubmitResultResponse {
+    fun submitCode(request: CodeSubmissionRequest, userId: Long): SubmitResultResponse {
         val questionId = request.questionId
         val question = questionRepository.findById(questionId)
             .orElseThrow { IllegalArgumentException("Question not found") }
@@ -81,7 +81,7 @@ class Judge0Service(
 
         val testsPassed = results.all { it.correct }
         if (testsPassed) {
-            userSessionService.increaseDifficulty()
+            userSessionService.increaseDifficulty(userId)
         }
         return SubmitResultResponse(testsPassed, results)
 
@@ -89,11 +89,12 @@ class Judge0Service(
 
     fun wrapFunctionCode(userCode: String, input: String): String {
         val functionName = extractFunctionName(userCode)
+        val safeInput = input.replace("\"\"\"", "\\\"\\\"\\\"")
         return buildString {
             appendLine(userCode.trimEnd())
             appendLine()
-            appendLine("if __name__ == '__main__':")
-            appendLine("    print($functionName($input))")
+            appendLine("if __name__ == \"__main__\":")
+            appendLine("    print($functionName(\"\"\"$safeInput\"\"\"))")
         }
     }
 
