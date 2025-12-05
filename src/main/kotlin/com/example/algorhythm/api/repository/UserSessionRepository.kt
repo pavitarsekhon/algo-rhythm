@@ -5,7 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface UserSessionRepository: JpaRepository<UserSession, String> {
 
-    fun findByActiveIsTrue(): UserSession
-
     fun findByUserId(userId: Long): UserSession?
 }

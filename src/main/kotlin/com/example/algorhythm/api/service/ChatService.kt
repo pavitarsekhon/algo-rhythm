@@ -26,7 +26,7 @@ class ChatService(
     fun chat(userId: Long, userMessage: String, userCode: String?): String {
         val user = userRepository.findById(userId).orElseThrow()
         val session = userSessionRepository.findByUserId(userId)
-        val questionId = session.currentQuestionId
+        val questionId = session?.currentQuestionId
         val questionText = questionRepository.findById(questionId!!).orElseThrow {
             throw IllegalArgumentException("Question doesn't exist")
         }.prompt
