@@ -11,6 +11,8 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.scheduler.Schedulers
+import java.util.concurrent.Semaphore
+import kotlin.concurrent.Volatile
 
 @Service
 class ChatService(
@@ -19,82 +21,76 @@ class ChatService(
     private val userSessionRepository: UserSessionRepository,
     private val webClient: WebClient,
     private val questionRepository: QuestionRepository,
+    private val geminiService: GeminiService,
     @Value("\${gemini.api.key}") private val apiKey: String,
     @Value("\${gemini.model}") private val model: String
 ) {
 
+    private val geminiSemaphore = Semaphore(1)
+
+    @Volatile
+    private var lastRequestTime = 0L
+
     fun chat(userId: Long, userMessage: String, userCode: String?): String {
-        val user = userRepository.findById(userId).orElseThrow()
-        val session = userSessionRepository.findByUserId(userId)
-        val questionId = session?.currentQuestionId
-        val questionText = questionRepository.findById(questionId!!).orElseThrow {
-            throw IllegalArgumentException("Question doesn't exist")
-        }.prompt
 
-        // Load last 20 messages for personalization
-        val historyText = chatMessageRepository
-            .findTop20ByUserIdOrderByTimestamp(userId)
-            .reversed()
-            .joinToString("\n") { "${it.sender.uppercase()}: ${it.message}" }
-
-        val systemPrompt = """
-            You are AlgoBot, an AI tutor for algorithmic problem solving.
-
-            ### USER PROFILE ###
-            Age: ${user.age}
-            Experience: ${user.experienceLevel}
-            Known Languages: ${user.knownLanguages}
-
-            ### INSTRUCTIONS ###
-            - Never provide full solutions or complete code.
-            - Provide hints, point out mistakes, guide line-by-line.
-            - If asked "what is wrong?", analyze user code carefully.
-            - You may reference line numbers.
-            - Match tone + difficulty to the user’s skill level.
-            - Do not produce a large output that may be overwhelming to the user
-            - Tailor the response towards the user's age and experience and known languages (if any)
-            - Be concise but helpful.
-            - if anything is asked that is not related to the question / code 
-            
-            
-            ### QUESTION ###
-            $questionText
-
-            ### CHAT HISTORY ###
-            $historyText
-
-            ### NEW USER MESSAGE ###
-            $userMessage
-
-            ### USER CODE ###
-            ${userCode ?: "(no code provided)"}
-        """.trimIndent()
-
-        val requestBody = mapOf(
-            "contents" to listOf(
-                mapOf(
-                    "role" to "user",
-                    "parts" to listOf(mapOf("text" to systemPrompt))
-                )
-            )
-        )
-
-        return webClient.post()
-            .uri("https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey")
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(requestBody)
-            .retrieve()
-            .bodyToMono(Map::class.java)
-            .map { response -> extractText(response) ?: "Sorry, I couldn't generate a response." }
-            .publishOn(Schedulers.boundedElastic())
-            .map { reply ->
-                // Save both messages
-                chatMessageRepository.save(ChatMessage(user = user, questionId = questionId, sender = "user", message = userMessage))
-                chatMessageRepository.save(ChatMessage(user = user, questionId = questionId, sender = "bot", message = reply))
-                reply
+        geminiSemaphore.acquire()
+        try {
+            val now = System.currentTimeMillis()
+            val elapsed = now - lastRequestTime
+            if (elapsed < 15_000) {
+                Thread.sleep(15_000 - elapsed)
             }
-            .block()!!
+            lastRequestTime = System.currentTimeMillis()
+
+            val user = userRepository.findById(userId).orElseThrow()
+            val session = userSessionRepository.findByUserId(userId)
+            val questionId = session?.currentQuestionId
+
+            val questionText = try {
+                questionRepository.findById(questionId!!).orElseThrow().prompt
+            } catch (_: Exception) {
+                "No question context available."
+            }
+
+            val historyText = chatMessageRepository
+                .findTop5ByUserIdOrderByTimestamp(userId)
+                .reversed()
+                .joinToString("\n") { "${it.sender.uppercase()}: ${it.message}" }
+
+            val safeCode = userCode?.take(2000) ?: "(no code provided)"
+
+            val requestBody = geminiService.generateChatRequestBody(
+                message = userMessage,
+                user = user,
+                chatHistory = historyText,
+                questionText = questionText,
+                code = safeCode
+            )
+
+            return webClient.post()
+                .uri("https://generativelanguage.googleapis.com/v1/models/$model:generateContent?key=$apiKey")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(Map::class.java)
+                .map { extractText(it) ?: "Sorry, I couldn't generate a response." }
+                .publishOn(Schedulers.boundedElastic())
+                .map { reply ->
+                    chatMessageRepository.save(
+                        ChatMessage(user = user, questionId = questionId, sender = "user", message = userMessage)
+                    )
+                    chatMessageRepository.save(
+                        ChatMessage(user = user, questionId = questionId, sender = "bot", message = reply)
+                    )
+                    reply
+                }
+                .block()!!
+
+        } finally {
+            geminiSemaphore.release()
+        }
     }
+
     private fun extractText(json: Map<*, *>): String? {
         val candidates = json["candidates"] as? List<*> ?: return null
         val first = candidates.firstOrNull() as? Map<*, *> ?: return null

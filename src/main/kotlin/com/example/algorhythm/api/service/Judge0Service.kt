@@ -4,6 +4,7 @@ import com.example.algorhythm.api.enum.ExecutionType
 import com.example.algorhythm.api.repository.IOPairRepository
 import com.example.algorhythm.api.repository.QuestionRepository
 import com.example.algorhythm.api.controller.QuestionController.CodeSubmissionRequest
+import com.example.algorhythm.api.repository.UserSessionRepository
 import com.example.algorhythm.consts.SUPPORTED_LANGUAGES
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
@@ -13,7 +14,8 @@ class Judge0Service(
     private val webClient: WebClient,
     private val questionRepository: QuestionRepository,
     private val ioPairRepository: IOPairRepository,
-    private val userSessionService: UserSessionService
+    private val userSessionService: UserSessionService,
+    private val userSessionRepository: UserSessionRepository
 ) {
     fun runCode(code: String, language: String, input: String? = null): Judge0ResultResponse {
          val requestBody = mapOf(
@@ -54,6 +56,7 @@ class Judge0Service(
 
     fun submitCode(request: CodeSubmissionRequest, userId: Long): SubmitResultResponse {
         val questionId = request.questionId
+        val userSession = userSessionRepository.findByUserId(userId) ?: throw IllegalArgumentException("User does not have a session")
         val question = questionRepository.findById(questionId)
             .orElseThrow { IllegalArgumentException("Question not found") }
 
@@ -61,21 +64,13 @@ class Judge0Service(
         val results = mutableListOf<TestResult>()
 
         ioPairs.forEach { pair ->
-            val testCode = when (question.executionType) {
-                ExecutionType.FUNCTION -> wrapFunctionCode(request.code, pair.inputText)
-                ExecutionType.STDIN -> request.code
-            }
-
-            val stdinValue = when (question.executionType) {
-                ExecutionType.FUNCTION -> ""
-                ExecutionType.STDIN -> pair.inputText
-            }
+            val testCode = wrapFunctionCode(request.code, pair.inputText)
+            val stdinValue = ""
 
             val result = runCode(testCode, request.language, stdinValue)
             val output = result.stdout?.trim() ?: ""
             val expected = pair.expectedOutput.trim()
             val correct = normalize(expected) == normalize(output)
-
             results.add(TestResult(pair.inputText, expected, output, correct))
         }
 
@@ -83,6 +78,9 @@ class Judge0Service(
         if (testsPassed) {
             userSessionService.increaseDifficulty(userId)
         }
+
+        userSession.totalAttempts += 1
+        userSessionRepository.save(userSession)
         return SubmitResultResponse(testsPassed, results)
 
     }
