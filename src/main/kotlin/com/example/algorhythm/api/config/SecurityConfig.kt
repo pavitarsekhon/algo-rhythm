@@ -10,6 +10,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.filter.OncePerRequestFilter
@@ -19,14 +21,23 @@ import org.springframework.web.filter.OncePerRequestFilter
 class SecurityConfig(private val jwtUtil: JwtUtil) {
 
     @Bean
+    fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
+
+    @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .csrf { it.disable() }
             .authorizeHttpRequests {
                 it.requestMatchers("/api/auth/**").permitAll()
-                    .anyRequest().authenticated()
+                it.requestMatchers("/api/chat").permitAll()   // 👈 place BEFORE anyRequest
+                it.requestMatchers("/api/questions/run").permitAll() // optional if needed
+                it.requestMatchers("/api/questions/submit").authenticated()
+                it.requestMatchers("/api/questions/next").authenticated()
+
+                it.anyRequest().authenticated()              // 👈 ALWAYS LAST
             }
             .addFilterBefore(JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter::class.java)
+
         return http.build()
     }
 

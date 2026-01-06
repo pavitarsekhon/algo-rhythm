@@ -8,8 +8,9 @@ import org.springframework.stereotype.Service
 class UserSessionService(
     private val userSessionRepository: UserSessionRepository
 ) {
-    fun increaseDifficulty() {
-        val user = userSessionRepository.findByActiveIsTrue()
+    fun increaseDifficulty(userId: Long) {
+        val user = userSessionRepository.findByUserId(userId)
+            ?: error("User session not found")
         if (user.currentDifficulty == QuestionDifficulty.EASY) {
             user.currentDifficulty = QuestionDifficulty.MEDIUM
             userSessionRepository.save(user)

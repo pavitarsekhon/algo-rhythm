@@ -1,4 +1,4 @@
 import API from "./axiosConfig";
 
-export const sendChatMessage = (message) =>
-    API.post("/chat", { message });
+export const sendChatMessage = (message, code) =>
+    API.post("/chat", { message, code });
