@@ -8,14 +8,17 @@ import com.example.algorhythm.api.repository.UserSessionRepository
 import com.example.algorhythm.api.security.JwtUtil
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
+import org.slf4j.LoggerFactory
+import org.springframework.security.crypto.password.PasswordEncoder
 
 @Service
 class AuthService(
     private val userRepository: UserRepository,
     private val userSessionRepository: UserSessionRepository,
+    private val passwordEncoder: PasswordEncoder,
     private val jwtUtil: JwtUtil
 ) {
-    private val passwordEncoder = BCryptPasswordEncoder()
+    private val logger = LoggerFactory.getLogger(AuthService::class.java)
 
     fun register(req: AuthRequest): User {
         val username = req.username
@@ -39,7 +42,14 @@ class AuthService(
         val user = userRepository.findByUsername(username)
             .orElseThrow { IllegalArgumentException("Invalid username or password") }
 
-        if (!passwordEncoder.matches(password, user.password))
+        // log hash prefix and length and whether the provided password matches the stored hash.
+        val storedHash = user.password
+        val prefix = if (storedHash.length >= 4) storedHash.take(4) else storedHash
+        val hashLen = storedHash.length
+        val matches = passwordEncoder.matches(password, storedHash)
+        logger.debug("Auth attempt username='{}' -> found=true, hashPrefix='{}', hashLen={}, matches={}", username, prefix, hashLen, matches)
+
+        if (!matches)
             throw IllegalArgumentException("Invalid username or password")
 
         return jwtUtil.generateToken(username)
