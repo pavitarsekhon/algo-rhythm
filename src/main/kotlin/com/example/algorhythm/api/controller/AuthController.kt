@@ -14,20 +14,29 @@ class AuthController(
 ) {
     @PostMapping("/register")
     fun register(@RequestBody req: AuthRequest): ResponseEntity<String> {
-        authService.register(req.username, req.password)
+        authService.register(req)
         return ResponseEntity.ok("User registered successfully")
     }
 
     @PostMapping("/login")
-    fun login(@RequestBody req: AuthRequest): ResponseEntity<AuthResponse> {
+    fun login(@RequestBody req: LoginRequest): ResponseEntity<AuthResponse> {
         val token = authService.login(req.username, req.password)
         return ResponseEntity.ok(AuthResponse(token))
     }
 }
 
-data class AuthRequest(
+data class LoginRequest(
     val username: String,
     val password: String
+)
+
+data class AuthRequest(
+    val username: String,
+    val password: String,
+    val age: Int? = 18,
+    val experienceLevel: String,
+    val knownLanguages: String
+
 )
 
 data class AuthResponse(

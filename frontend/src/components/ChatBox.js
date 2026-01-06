@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { sendChatMessage } from "../api/chatApi";
 
-function ChatBox() {
+function ChatBox({ editorRef }) {
     const [message, setMessage] = useState("");
     const [chat, setChat] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -17,30 +17,33 @@ function ChatBox() {
         if (!message.trim() || isLoading) return;
 
         const userMessage = message;
+        const userCode = editorRef?.current?.getValue() || "";
+
         setMessage("");
         setChat(prev => [...prev, { user: userMessage, bot: null }]);
         setIsLoading(true);
 
         try {
-            console.log("User message:", userMessage)
-            const res = await sendChatMessage(userMessage);
-            console.log("Response:", res)
+            console.log("im here 1")
+            const res = await sendChatMessage(userMessage, userCode);
+            console.log("im here 2")
             setChat(prev => {
                 const updated = [...prev];
                 updated[updated.length - 1].bot = res.data.reply;
                 return updated;
             });
+
         } catch (err) {
-            console.error("Chat error:", err);
             setChat(prev => {
                 const updated = [...prev];
-                updated[updated.length - 1].bot = "Sorry, I encountered an error. Please try again.";
+                updated[updated.length - 1].bot = "Error: please try again.";
                 return updated;
             });
         } finally {
             setIsLoading(false);
         }
     };
+
 
     return (
         <div style={{
