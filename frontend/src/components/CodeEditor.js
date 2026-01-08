@@ -1,15 +1,24 @@
 import {Box, VStack} from "@chakra-ui/react";
 import {Editor} from "@monaco-editor/react";
-import {useRef, useState} from "react";
+import {useRef, useState, useEffect} from "react";
 import LanguageSelector from "./LanguageSelector";
 import {CODE_SNIPPETS} from "../constants";
 import Output from "./Output";
-import {HStack} from "@chakra-ui/icons";
 
 const CodeEditor = ({question, onNextQuestion, onEditorRef }) => {
     const editorRef = useRef()
     const [value, setValue] = useState('')
     const [language, setLanguage] = useState('python')
+
+    // Initialize editor with starterCode when question changes
+    useEffect(() => {
+        if (question?.starterCode) {
+            setValue(question.starterCode);
+        } else {
+            setValue(CODE_SNIPPETS[language]);
+        }
+    }, [question, language]);
+
     const onMount = (editor) => {
         editorRef.current = editor;
         editor.focus();
@@ -18,7 +27,12 @@ const CodeEditor = ({question, onNextQuestion, onEditorRef }) => {
 
     const onSelect = (language) => {
         setLanguage(language)
-        setValue(CODE_SNIPPETS[language])
+        // Use starterCode if available, otherwise use default snippet
+        if (question?.starterCode) {
+            setValue(question.starterCode)
+        } else {
+            setValue(CODE_SNIPPETS[language])
+        }
     }
     return (
         <Box>
@@ -43,10 +57,7 @@ const CodeEditor = ({question, onNextQuestion, onEditorRef }) => {
                                     editorRef={editorRef}
                                     language={language}
                                     question={question}
-                                    onNextQuestion={() => {
-                                        setValue(""); // Clear editor
-                                        onNextQuestion();
-                                    }}
+                                    onNextQuestion={onNextQuestion}
                                 />
                             </VStack>
                         </Box>
