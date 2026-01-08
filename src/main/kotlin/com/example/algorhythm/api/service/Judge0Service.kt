@@ -64,10 +64,16 @@ class Judge0Service(
         val results = mutableListOf<TestResult>()
 
         ioPairs.forEach { pair ->
-            val testCode = wrapFunctionCode(request.code, pair.inputText)
-            val stdinValue = ""
+            val result = when (question.executionType) {
+                ExecutionType.FUNCTION -> {
+                    val testCode = wrapFunctionCode(request.code, pair.inputText, request.language)
+                    runCode(testCode, request.language, "")
+                }
+                ExecutionType.STDIN -> {
+                    runCode(request.code, request.language, pair.inputText)
+                }
+            }
 
-            val result = runCode(testCode, request.language, stdinValue)
             val output = result.stdout?.trim() ?: ""
             val expected = pair.expectedOutput.trim()
             val correct = normalize(expected) == normalize(output)
@@ -85,14 +91,66 @@ class Judge0Service(
 
     }
 
-    fun wrapFunctionCode(userCode: String, input: String): String {
+    fun wrapFunctionCode(userCode: String, inputText: String, language: String): String {
         val functionName = extractFunctionName(userCode)
-        val safeInput = input.replace("\"\"\"", "\\\"\\\"\\\"")
+        val arguments = parseInputArguments(inputText)
+
+        return when (language.lowercase()) {
+            "python", "python3" -> buildPythonWrapper(userCode, functionName, arguments)
+//            "java" -> buildJavaWrapper(userCode, functionName, arguments) -- maybe for future
+//            "c", "cpp", "c++" -> buildCWrapper(userCode, functionName, arguments) -- maybe for future
+            else -> buildPythonWrapper(userCode, functionName, arguments) // default to Python
+        }
+    }
+
+
+    private fun parseInputArguments(inputText: String): List<String> {
+        val arguments = mutableListOf<String>()
+
+        var depth = 0
+        var inString = false
+        val currentValue = StringBuilder()
+        var seenEquals = false
+
+        for (char in inputText) {
+            when {
+                char == '"' && (currentValue.isEmpty() || currentValue.last() != '\\') -> inString = !inString
+                !inString && char == '[' -> depth++
+                !inString && char == ']' -> depth--
+                !inString && char == '=' && depth == 0 -> {
+                    seenEquals = true
+                    currentValue.clear()
+                    continue
+                }
+                !inString && char == ',' && depth == 0 -> {
+                    if (seenEquals) {
+                        arguments.add(currentValue.toString().trim())
+                        currentValue.clear()
+                        seenEquals = false
+                    }
+                    continue
+                }
+            }
+            if (seenEquals) {
+                currentValue.append(char)
+            }
+        }
+
+        if (seenEquals && currentValue.isNotEmpty()) {
+            arguments.add(currentValue.toString().trim())
+        }
+
+        return arguments
+    }
+
+    private fun buildPythonWrapper(userCode: String, functionName: String, arguments: List<String>): String {
+        val argsStr = arguments.joinToString(", ")
         return buildString {
             appendLine(userCode.trimEnd())
             appendLine()
             appendLine("if __name__ == \"__main__\":")
-            appendLine("    print($functionName(\"\"\"$safeInput\"\"\"))")
+            appendLine("    result = $functionName($argsStr)")
+            appendLine("    print(result)")
         }
     }
 
