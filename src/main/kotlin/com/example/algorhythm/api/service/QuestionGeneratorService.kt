@@ -25,14 +25,19 @@ class QuestionGeneratorService(
     private val questionSchema = mapOf(
         "type" to "object",
         "required" to listOf(
-            "topic",
+            "topics",
             "prompt",
             "difficulty",
             "executionType",
             "ioPairs"
         ),
         "properties" to mapOf(
-            "topic" to mapOf("type" to "string"),
+            "topics" to mapOf(
+                "type" to "array",
+                "items" to mapOf("type" to "string"),
+                "minItems" to 1,
+                "maxItems" to 5
+            ),
             "prompt" to mapOf("type" to "string"),
             "difficulty" to mapOf("type" to "string"),
             "executionType" to mapOf(
@@ -98,9 +103,8 @@ class QuestionGeneratorService(
         val dto: GeneratedQuestionDTO = mapper.readValue(rawJson)
 
         val question = Question(
-            topic = dto.topic,
+            topics = dto.topics.joinToString(", "),
             prompt = dto.prompt,
-            hints = dto.hints,
             difficulty = QuestionDifficulty.valueOf(dto.difficulty.uppercase()),
             executionType = ExecutionType.valueOf(dto.executionType.uppercase())
         )
@@ -127,7 +131,7 @@ class QuestionGeneratorService(
 }
 
 data class GeneratedQuestionDTO(
-    val topic: String,
+    val topics: List<String>,
     val prompt: String,
     val difficulty: String,
     val executionType: String,
