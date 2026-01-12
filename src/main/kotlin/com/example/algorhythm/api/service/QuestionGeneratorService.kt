@@ -63,57 +63,11 @@ class QuestionGeneratorService(
 
     fun generateQuestion(difficulty: QuestionDifficulty, userLevel: String): Question {
 
-        val prompt = """
-            Generate a programming challenge suitable for a coding practice platform.
-
-            Requirements:
-            - Difficulty: $difficulty
-            - Fit the question to user level: $userLevel
-            - Include 2–4 example IO pairs.
-            - Prompt must clearly explain expected input & output.
-            - NO explanations. NO markdown. Output ONLY valid JSON.
-        """.trimIndent()
-
-        val requestBody = mapOf(
-            "contents" to listOf(
-                mapOf(
-                    "role" to "user",
-                    "parts" to listOf(mapOf("text" to prompt))
-                )
-            ),
-            "generationConfig" to mapOf(
-                "responseMimeType" to "application/json",
-                "responseSchema" to questionSchema
-            )
-        )
-
-        val apiResponse = webClient.post()
-            .uri("https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey")
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(requestBody)
-            .retrieve()
-            .bodyToMono(Map::class.java)
-            .block()
-            ?: throw IllegalStateException("Empty response from Gemini")
-
-        val rawJson = extractJson(apiResponse)
-
-        println("RAW GEMINI JSON:\n$rawJson")
-
-        val dto: GeneratedQuestionDTO = mapper.readValue(rawJson)
-
-        val question = Question(
-            topics = dto.topics.joinToString(", "),
-            prompt = dto.prompt,
-            difficulty = QuestionDifficulty.valueOf(dto.difficulty.uppercase()),
-            executionType = ExecutionType.valueOf(dto.executionType.uppercase())
-        )
-
-        dto.ioPairs.forEach {
-            question.ioPairs.add(IOPair(inputText = it.inputText, expectedOutput = it.expectedOutput, question = question))
+        val questions = questionRepository.findByDifficulty(difficulty)
+        if (questions.isNotEmpty()) {
+            return questions.random()
         }
-
-        return questionRepository.save(question)
+        throw IllegalArgumentException("No questions available for difficulty: $difficulty")
     }
 
     private fun extractJson(response: Map<*, *>): String {
