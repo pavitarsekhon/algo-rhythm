@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { sendChatMessage } from "../api/chatApi";
+import FormattedMessage from "./FormattedMessage";
 
 function ChatBox({ editorRef }) {
     const [message, setMessage] = useState("");
@@ -134,16 +135,16 @@ function ChatBox({ editorRef }) {
                                     <div style={{ display: "flex" }}>
                                         <div style={{
                                             maxWidth: "80%",
-                                            background: "#f3f4f6",
+                                            background: "#f9fafb",
                                             color: "#1f2937",
-                                            padding: "12px 16px",
+                                            padding: "16px",
                                             borderRadius: "16px",
                                             borderBottomLeftRadius: "4px",
                                             fontSize: "14px",
-                                            lineHeight: "1.5",
-                                            whiteSpace: "pre-wrap"
+                                            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                                            border: "1px solid #e5e7eb"
                                         }}>
-                                            {msg.bot}
+                                            <FormattedMessage content={msg.bot} />
                                         </div>
                                     </div>
                                 ) : (
