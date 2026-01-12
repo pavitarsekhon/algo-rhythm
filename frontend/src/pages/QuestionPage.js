@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ChatBox from "../components/ChatBox";
 import CodeEditor from "../components/CodeEditor";
+import FormattedQuestion from "../components/FormattedQuestion";
 import { getNextQuestion } from "../api/questionsApi";
 import { useNavigate } from "react-router-dom";
 
@@ -63,7 +64,7 @@ function QuestionPage() {
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "flex-start",
-                        marginBottom: "16px"
+                        marginBottom: "20px"
                     }}>
                         <h1 style={{
                             fontSize: "24px",
@@ -71,7 +72,7 @@ function QuestionPage() {
                             color: "#1a1a1a",
                             margin: 0
                         }}>
-                            {question?.topic || "Loading..."}
+                            {question?.topics ? question.topics.split('|')[0] : "Loading..."}
                         </h1>
                         {question?.difficulty && (
                             <span style={{
@@ -87,14 +88,7 @@ function QuestionPage() {
                             </span>
                         )}
                     </div>
-                    <p style={{
-                        fontSize: "16px",
-                        lineHeight: "1.7",
-                        color: "#4b5563",
-                        margin: 0
-                    }}>
-                        {question?.prompt || "Loading question..."}
-                    </p>
+                    <FormattedQuestion content={question?.prompt} />
                 </div>
 
                 {/* Code Editor Card */}

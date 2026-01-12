@@ -53,35 +53,6 @@ const Output = ({ editorRef, language, question, onNextQuestion}) => {
             {/* Buttons */}
             <div style={{ display: "flex", gap: "12px", marginBottom: "20px" }}>
                 <button
-                    onClick={runCode}
-                    disabled={isLoading}
-                    style={{
-                        padding: "10px 24px",
-                        fontSize: "14px",
-                        fontWeight: "600",
-                        color: "white",
-                        background: isLoading
-                            ? "#9ca3af"
-                            : "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-                        border: "none",
-                        borderRadius: "8px",
-                        cursor: isLoading ? "not-allowed" : "pointer",
-                        transition: "all 0.3s"
-                    }}
-                    onMouseOver={(e) => {
-                        if (!isLoading) {
-                            e.target.style.transform = "translateY(-2px)";
-                            e.target.style.boxShadow = "0 4px 12px rgba(16, 185, 129, 0.4)";
-                        }
-                    }}
-                    onMouseOut={(e) => {
-                        e.target.style.transform = "translateY(0)";
-                        e.target.style.boxShadow = "none";
-                    }}
-                >
-                    {isLoading ? "Running..." : "Run Code"}
-                </button>
-                <button
                     onClick={submitSourceCode}
                     disabled={isLoading}
                     style={{

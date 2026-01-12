@@ -6,6 +6,7 @@ import com.example.algorhythm.api.repository.QuestionRepository
 import com.example.algorhythm.api.controller.QuestionController.CodeSubmissionRequest
 import com.example.algorhythm.api.repository.UserSessionRepository
 import com.example.algorhythm.consts.SUPPORTED_LANGUAGES
+import com.example.algorhythm.util.IndentationUtil
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 
@@ -18,8 +19,13 @@ class Judge0Service(
     private val userSessionRepository: UserSessionRepository
 ) {
     fun runCode(code: String, language: String, input: String? = null): Judge0ResultResponse {
+         val normalizedCode = when (language.lowercase()) {
+             "python", "python3" -> IndentationUtil.normalizeForPython(code)
+             else -> code
+         }
+
          val requestBody = mapOf(
-            "source_code" to code,
+            "source_code" to normalizedCode,
             "language_id" to SUPPORTED_LANGUAGES[language],
             "stdin" to (input ?: "")
          )
@@ -60,14 +66,13 @@ class Judge0Service(
         val question = questionRepository.findById(questionId)
             .orElseThrow { IllegalArgumentException("Question not found") }
 
-        val ioPairs = ioPairRepository.findByQuestionId(questionId)
+        val ioPairs = ioPairRepository.findByQuestionId(questionId).take(3) // limit to first 3 test cases
         val results = mutableListOf<TestResult>()
 
         ioPairs.forEach { pair ->
-            val testCode = wrapFunctionCode(request.code, pair.inputText)
-            val stdinValue = ""
+            val testCode = wrapFunctionCode(request.code, pair.inputText, request.language)
+            val result = runCode(testCode, request.language, "")
 
-            val result = runCode(testCode, request.language, stdinValue)
             val output = result.stdout?.trim() ?: ""
             val expected = pair.expectedOutput.trim()
             val correct = normalize(expected) == normalize(output)
@@ -85,23 +90,84 @@ class Judge0Service(
 
     }
 
-    fun wrapFunctionCode(userCode: String, input: String): String {
+    fun wrapFunctionCode(userCode: String, inputText: String, language: String): String {
         val functionName = extractFunctionName(userCode)
-        val safeInput = input.replace("\"\"\"", "\\\"\\\"\\\"")
+        val arguments = parseInputArguments(inputText)
+
+        return buildPythonWrapper(userCode, functionName, arguments)
+    }
+
+
+    private fun parseInputArguments(inputText: String): List<String> {
+        val arguments = mutableListOf<String>()
+
+        var depth = 0
+        var inString = false
+        val currentValue = StringBuilder()
+        var seenEquals = false
+
+        for (char in inputText) {
+            when {
+                char == '"' && (currentValue.isEmpty() || currentValue.last() != '\\') -> inString = !inString
+                !inString && char == '[' -> depth++
+                !inString && char == ']' -> depth--
+                !inString && char == '=' && depth == 0 -> {
+                    seenEquals = true
+                    currentValue.clear()
+                    continue
+                }
+                !inString && char == ',' && depth == 0 -> {
+                    if (seenEquals) {
+                        arguments.add(currentValue.toString().trim())
+                        currentValue.clear()
+                        seenEquals = false
+                    }
+                    continue
+                }
+            }
+            if (seenEquals) {
+                currentValue.append(char)
+            }
+        }
+
+        if (seenEquals && currentValue.isNotEmpty()) {
+            arguments.add(currentValue.toString().trim())
+        }
+
+        return arguments
+    }
+
+    private fun buildPythonWrapper(userCode: String, functionName: String, arguments: List<String>): String {
+        val normalizedCode = IndentationUtil.normalizeForPython(userCode.trimEnd())
+        val argsStr = arguments.joinToString(", ")
+        val callExpr = inferCallExpression(normalizedCode, functionName)
+
         return buildString {
-            appendLine(userCode.trimEnd())
+            appendLine(normalizedCode)
             appendLine()
             appendLine("if __name__ == \"__main__\":")
-            appendLine("    print($functionName(\"\"\"$safeInput\"\"\"))")
+            appendLine("    result = $callExpr($argsStr)")
+            appendLine("    print(result)")
         }
     }
 
+    private fun inferCallExpression(code: String, functionName: String): String {
+        val classBlockRegex = Regex("""class\s+([A-Za-z_][A-Za-z0-9_]*)\s*[:\(].*?(?=(?m:^class\s)|\z)""", setOf(RegexOption.DOT_MATCHES_ALL, RegexOption.MULTILINE))
+        for (m in classBlockRegex.findAll(code)) {
+            val block = m.value
+            val className = m.groupValues[1]
+            val defRegex = Regex("""def\s+$functionName\s*\(""")
+            if (defRegex.containsMatchIn(block)) {
+                return "${className}().$functionName"
+            }
+        }
+        return functionName
+    }
+
     private fun extractFunctionName(code: String): String {
-        // Try to match Python-style function definitions
         val pythonRegex = Regex("""def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(""")
         pythonRegex.find(code)?.let { return it.groupValues[1] }
 
-        // Try to match Java/Kotlin/C-style function definitions
         val cStyleRegex = Regex("""(?:[a-zA-Z_][\w<>\[\]\s]*)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(""")
         cStyleRegex.find(code)?.let { return it.groupValues[1] }
 
