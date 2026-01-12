@@ -25,14 +25,19 @@ class QuestionGeneratorService(
     private val questionSchema = mapOf(
         "type" to "object",
         "required" to listOf(
-            "topic",
+            "topics",
             "prompt",
             "difficulty",
             "executionType",
             "ioPairs"
         ),
         "properties" to mapOf(
-            "topic" to mapOf("type" to "string"),
+            "topics" to mapOf(
+                "type" to "array",
+                "items" to mapOf("type" to "string"),
+                "minItems" to 1,
+                "maxItems" to 5
+            ),
             "prompt" to mapOf("type" to "string"),
             "difficulty" to mapOf("type" to "string"),
             "executionType" to mapOf(
@@ -58,58 +63,11 @@ class QuestionGeneratorService(
 
     fun generateQuestion(difficulty: QuestionDifficulty, userLevel: String): Question {
 
-        val prompt = """
-            Generate a programming challenge suitable for a coding practice platform.
-
-            Requirements:
-            - Difficulty: $difficulty
-            - Fit the question to user level: $userLevel
-            - Include 2–4 example IO pairs.
-            - Prompt must clearly explain expected input & output.
-            - NO explanations. NO markdown. Output ONLY valid JSON.
-        """.trimIndent()
-
-        val requestBody = mapOf(
-            "contents" to listOf(
-                mapOf(
-                    "role" to "user",
-                    "parts" to listOf(mapOf("text" to prompt))
-                )
-            ),
-            "generationConfig" to mapOf(
-                "responseMimeType" to "application/json",
-                "responseSchema" to questionSchema
-            )
-        )
-
-        val apiResponse = webClient.post()
-            .uri("https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey")
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(requestBody)
-            .retrieve()
-            .bodyToMono(Map::class.java)
-            .block()
-            ?: throw IllegalStateException("Empty response from Gemini")
-
-        val rawJson = extractJson(apiResponse)
-
-        println("RAW GEMINI JSON:\n$rawJson")
-
-        val dto: GeneratedQuestionDTO = mapper.readValue(rawJson)
-
-        val question = Question(
-            topic = dto.topic,
-            prompt = dto.prompt,
-            hints = dto.hints,
-            difficulty = QuestionDifficulty.valueOf(dto.difficulty.uppercase()),
-            executionType = ExecutionType.valueOf(dto.executionType.uppercase())
-        )
-
-        dto.ioPairs.forEach {
-            question.ioPairs.add(IOPair(inputText = it.inputText, expectedOutput = it.expectedOutput, question = question))
+        val questions = questionRepository.findByDifficulty(difficulty)
+        if (questions.isNotEmpty()) {
+            return questions.random()
         }
-
-        return questionRepository.save(question)
+        throw IllegalArgumentException("No questions available for difficulty: $difficulty")
     }
 
     private fun extractJson(response: Map<*, *>): String {
@@ -127,7 +85,7 @@ class QuestionGeneratorService(
 }
 
 data class GeneratedQuestionDTO(
-    val topic: String,
+    val topics: List<String>,
     val prompt: String,
     val difficulty: String,
     val executionType: String,
