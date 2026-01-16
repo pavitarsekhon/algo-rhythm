@@ -17,7 +17,8 @@ class User (
 
     var age: Int? = null,
     var experienceLevel: String? = null,
-    var knownLanguages: String? = null
-) {
+    var knownLanguages: String? = null,
 
-}
+    @Column(name = "is_admin", nullable = false)
+    var isAdmin: Boolean = false
+)
