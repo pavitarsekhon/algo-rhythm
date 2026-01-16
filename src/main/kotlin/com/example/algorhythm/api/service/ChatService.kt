@@ -20,8 +20,8 @@ class ChatService(
     private val userSessionRepository: UserSessionRepository,
     private val webClient: WebClient,
     private val questionRepository: QuestionRepository,
-    @Value("\${groq.api.key}") private val groqApiKey: String,
-    @Value("\${groq.model}") private val groqModel: String
+    @Value("\${groq.api.key:}") private val groqApiKey: String,
+    @Value("\${groq.model:llama-3.3-70b-versatile}") private val groqModel: String
 ) {
 
     private val geminiSemaphore = Semaphore(1)
