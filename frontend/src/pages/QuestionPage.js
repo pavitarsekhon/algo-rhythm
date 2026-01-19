@@ -2,31 +2,32 @@ import React, { useState, useEffect } from "react";
 import ChatBox from "../components/ChatBox";
 import CodeEditor from "../components/CodeEditor";
 import FormattedQuestion from "../components/FormattedQuestion";
-import { getNextQuestion } from "../api/questionsApi";
+import { getCurrentQuestion, getNextQuestion } from "../api/questionsApi";
 import { useNavigate } from "react-router-dom";
 
 function QuestionPage() {
     const navigate = useNavigate();
+    const [question, setQuestion] = useState(null);
+    const [editorRef, setEditorRef] = useState(null);
+
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) {
             navigate("/");
+            return;
         }
-    }, []);
-    const [question, setQuestion] = useState(null);
 
-    useEffect(() => {
-        getNextQuestion()
+        // Load the user's current question on page load
+        getCurrentQuestion()
             .then((res) => setQuestion(res.data))
-            .catch((err) => console.error("Failed to fetch question:", err));
-    }, []);
-
-    const [editorRef, setEditorRef] = useState(null)
+            .catch((err) => console.error("Failed to fetch current question:", err));
+    }, [navigate]);
 
     const loadNextQuestion = () => {
+        // Only called when "Next Question" button is clicked
         getNextQuestion()
             .then((res) => setQuestion(res.data))
-            .catch((err) => console.error("Failed to fetch question:", err));
+            .catch((err) => console.error("Failed to fetch next question:", err));
     };
 
     const getDifficultyColor = (difficulty) => {
