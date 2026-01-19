@@ -10,25 +10,29 @@ import { checkAdminStatus } from "./api/adminApi";
 
 function App() {
     const [isAdmin, setIsAdmin] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
-        const checkAdmin = async () => {
-            try {
-                const token = localStorage.getItem("token");
-                if (token) {
+        const checkAuth = async () => {
+            const token = localStorage.getItem("token");
+            setIsLoggedIn(!!token);
+
+            if (token) {
+                try {
                     const response = await checkAdminStatus();
                     setIsAdmin(response.isAdmin);
+                } catch (error) {
+                    setIsAdmin(false);
                 }
-            } catch (error) {
-                setIsAdmin(false);
             }
         };
-        checkAdmin();
+        checkAuth();
     }, []);
 
     const handleLogout = () => {
         localStorage.removeItem("token");
         setIsAdmin(false);
+        setIsLoggedIn(false);
         window.location.href = "/";
     };
 
@@ -68,23 +72,21 @@ function App() {
 
                         {/* Navigation */}
                         <nav style={{ display: "flex", alignItems: "center", gap: "32px" }}>
-                            <a href="/question" style={navLinkStyle}>Practice</a>
-                            <a href="/progress" style={navLinkStyle}>Progress</a>
-                            <a href="/leaderboard" style={navLinkStyle}>Leaderboard</a>
-
-                            {/* Admin Link - Only shown to admins */}
-                            {isAdmin && (
-                                <a href="/admin" style={adminLinkStyle}>
-                                    🛡️ Admin
-                                </a>
+                            {isLoggedIn && (
+                                <>
+                                    <a href="/question" style={navLinkStyle}>Practice</a>
+                                    {/* Admin Link - Only shown to admins */}
+                                    {isAdmin && (
+                                        <a href="/admin" style={navLinkStyle}>Admin</a>
+                                    )}
+                                    <button
+                                        onClick={handleLogout}
+                                        style={logoutButtonStyle}
+                                    >
+                                        Logout
+                                    </button>
+                                </>
                             )}
-
-                            <button
-                                onClick={handleLogout}
-                                style={logoutButtonStyle}
-                            >
-                                Logout
-                            </button>
                         </nav>
                     </div>
                 </header>
@@ -115,17 +117,6 @@ const navLinkStyle = {
     color: "#4b5563",
     textDecoration: "none",
     transition: "color 0.3s",
-};
-
-const adminLinkStyle = {
-    fontSize: "15px",
-    fontWeight: "600",
-    color: "#7c3aed",
-    textDecoration: "none",
-    transition: "color 0.3s",
-    display: "flex",
-    alignItems: "center",
-    gap: "4px",
 };
 
 const logoutButtonStyle = {

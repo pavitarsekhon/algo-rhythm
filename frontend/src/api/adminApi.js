@@ -36,3 +36,9 @@ export const deleteUser = async (userId) => {
     return response.data;
 };
 
+// Generate questions using AI
+export const generateQuestions = async (count = 5, difficulty = "EASY") => {
+    const response = await API.post("/admin/questions/generate", { count, difficulty });
+    return response.data;
+};
+
