@@ -1,13 +1,38 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import QuestionPage from "./pages/QuestionPage";
 import HomePage from "./pages/HomePage";
+import AdminPage from "./pages/AdminPage";
 import RequireAuth from "./components/RequireAuth";
+import RequireAdmin from "./components/RequireAdmin";
 import RegisterPage from "./pages/RegisterPage";
+import { checkAdminStatus } from "./api/adminApi";
 
 function App() {
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        const checkAuth = async () => {
+            const token = localStorage.getItem("token");
+            setIsLoggedIn(!!token);
+
+            if (token) {
+                try {
+                    const response = await checkAdminStatus();
+                    setIsAdmin(response.isAdmin);
+                } catch (error) {
+                    setIsAdmin(false);
+                }
+            }
+        };
+        checkAuth();
+    }, []);
+
     const handleLogout = () => {
         localStorage.removeItem("token");
+        setIsAdmin(false);
+        setIsLoggedIn(false);
         window.location.href = "/";
     };
 
@@ -47,16 +72,21 @@ function App() {
 
                         {/* Navigation */}
                         <nav style={{ display: "flex", alignItems: "center", gap: "32px" }}>
-                            <a href="/question" style={navLinkStyle}>Practice</a>
-                            <a href="/progress" style={navLinkStyle}>Progress</a>
-                            <a href="/leaderboard" style={navLinkStyle}>Leaderboard</a>
-
-                            <button
-                                onClick={handleLogout}
-                                style={logoutButtonStyle}
-                            >
-                                Logout
-                            </button>
+                            {isLoggedIn && (
+                                <>
+                                    <a href="/question" style={navLinkStyle}>Practice</a>
+                                    {/* Admin Link - Only shown to admins */}
+                                    {isAdmin && (
+                                        <a href="/admin" style={navLinkStyle}>Admin</a>
+                                    )}
+                                    <button
+                                        onClick={handleLogout}
+                                        style={logoutButtonStyle}
+                                    >
+                                        Logout
+                                    </button>
+                                </>
+                            )}
                         </nav>
                     </div>
                 </header>
@@ -70,6 +100,10 @@ function App() {
                     <Route element={<RequireAuth />}>
                         <Route path="/question" element={<QuestionPage />} />
                         {/* Add more protected pages like /progress here */}
+                    </Route>
+                    {/* Admin Only */}
+                    <Route element={<RequireAdmin />}>
+                        <Route path="/admin" element={<AdminPage />} />
                     </Route>
                 </Routes>
             </div>

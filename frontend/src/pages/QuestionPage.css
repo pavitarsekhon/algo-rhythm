@@ -1,0 +1,79 @@
+/* QuestionPage.css - Question Page Styles */
+
+.question-page-container {
+    display: flex;
+    height: calc(100vh - 70px);
+    background: #f8fafc;
+}
+
+/* Left Side - Question & Editor */
+.question-left-panel {
+    flex: 2;
+    padding: 40px;
+    overflow-y: auto;
+    background: #f8fafc;
+}
+
+/* Question Card */
+.question-card {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+}
+
+.question-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.question-card-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.difficulty-tag {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.difficulty-tag.easy {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+}
+
+.difficulty-tag.medium {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+}
+
+.difficulty-tag.hard {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+/* Code Editor Card */
+.editor-card {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+}
+
+/* Right Side - ChatBox */
+.question-right-panel {
+    width: 420px;
+    border-left: 1px solid #e5e7eb;
+    background: white;
+}
+
