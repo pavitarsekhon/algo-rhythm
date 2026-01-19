@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import axios from "axios";
+import "./RegisterPage.css";
 
 function RegisterPage() {
     const [form, setForm] = useState({
@@ -38,88 +39,53 @@ function RegisterPage() {
     };
 
     return (
-        <div style={{
-            minHeight: "100vh",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            background: "#f8fafc",
-            padding: "20px"
-        }}>
-            <div style={{
-                width: "380px",
-                background: "white",
-                borderRadius: "16px",
-                padding: "32px",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-                border: "1px solid #e5e7eb"
-            }}>
-                <h1 style={{
-                    textAlign: "center",
-                    fontSize: "28px",
-                    fontWeight: "800",
-                    marginBottom: "6px",
-                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text"
-                }}>
-                    Create Account
-                </h1>
-
-                <p style={{
-                    textAlign: "center",
-                    marginBottom: "24px",
-                    color: "#6b7280"
-                }}>
-                    Join AlgoRhythm and start coding smarter
-                </p>
+        <div className="register-container">
+            <div className="register-card">
+                <h1 className="register-title">Create Account</h1>
+                <p className="register-subtitle">Join AlgoRhythm and start coding smarter</p>
 
                 <form onSubmit={handleRegister}>
                     {/* Username */}
-                    <label style={{ fontWeight: "600", fontSize: "14px", color: "#333" }}>Username</label>
+                    <label className="register-form-label">Username</label>
                     <input
                         name="username"
                         value={form.username}
                         onChange={handleChange}
                         required
-                        style={inputStyle}
+                        className="register-input"
                         placeholder="Choose a username"
                     />
 
                     {/* Password */}
-                    <label style={{ fontWeight: "600", fontSize: "14px", color: "#333" }}>Password</label>
+                    <label className="register-form-label">Password</label>
                     <input
                         type="password"
                         name="password"
                         value={form.password}
                         onChange={handleChange}
                         required
-                        style={inputStyle}
+                        className="register-input"
                         placeholder="Choose a password"
                     />
 
                     {/* Age */}
-                    <label style={{ fontWeight: "600", fontSize: "14px", color: "#333" }}>Age (optional)</label>
+                    <label className="register-form-label">Age (optional)</label>
                     <input
                         type="number"
                         name="age"
                         value={form.age}
                         onChange={handleChange}
-                        style={inputStyle}
+                        className="register-input"
                         placeholder="18"
                     />
 
                     {/* Experience */}
-                    <label style={{ fontWeight: "600", fontSize: "14px", color: "#333" }}>Experience Level</label>
+                    <label className="register-form-label">Experience Level</label>
                     <select
                         name="experienceLevel"
                         value={form.experienceLevel}
                         onChange={handleChange}
-                        style={{
-                            ...inputStyle,
-                            cursor: "pointer"
-                        }}
+                        className="register-select"
                     >
                         <option value="">Select...</option>
                         <option value="Beginner">Beginner</option>
@@ -128,51 +94,26 @@ function RegisterPage() {
                     </select>
 
                     {/* Languages */}
-                    <label style={{ fontWeight: "600", fontSize: "14px", color: "#333" }}>Known Languages</label>
+                    <label className="register-form-label">Known Languages</label>
                     <input
                         name="knownLanguages"
                         value={form.knownLanguages}
                         onChange={handleChange}
-                        style={inputStyle}
+                        className="register-input"
                         placeholder="e.g. Python, JavaScript"
                     />
 
-                    {error && (
-                        <p style={{ color: "#ef4444", fontWeight: "500", marginTop: "8px" }}>{error}</p>
-                    )}
+                    {error && <p className="register-error">{error}</p>}
 
                     {/* Submit button */}
-                    <button
-                        type="submit"
-                        style={{
-                            width: "100%",
-                            marginTop: "20px",
-                            padding: "12px 16px",
-                            border: "none",
-                            borderRadius: "10px",
-                            color: "white",
-                            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                            fontSize: "15px",
-                            fontWeight: "600",
-                            cursor: "pointer",
-                            transition: "0.25s"
-                        }}
-                        onMouseOver={(e) => {
-                            e.target.style.transform = "translateY(-2px)";
-                            e.target.style.boxShadow = "0 4px 12px rgba(102, 126, 234, 0.3)";
-                        }}
-                        onMouseOut={(e) => {
-                            e.target.style.transform = "translateY(0)";
-                            e.target.style.boxShadow = "none";
-                        }}
-                    >
+                    <button type="submit" className="register-button">
                         Register
                     </button>
                 </form>
 
-                <p style={{ textAlign: "center", marginTop: "20px", fontSize: "14px", color: "#666" }}>
+                <p className="login-link-container">
                     Already have an account?{" "}
-                    <RouterLink to="/" style={{ color: "#667eea", fontWeight: "600" }}>
+                    <RouterLink to="/" className="login-link">
                         Log in
                     </RouterLink>
                 </p>
@@ -180,17 +121,5 @@ function RegisterPage() {
         </div>
     );
 }
-
-const inputStyle = {
-    width: "100%",
-    padding: "12px",
-    marginTop: "6px",
-    marginBottom: "16px",
-    borderRadius: "10px",
-    border: "2px solid #e5e7eb",
-    outline: "none",
-    fontSize: "14px",
-    transition: "border-color 0.3s"
-};
 
 export default RegisterPage;
