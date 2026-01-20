@@ -1,6 +1,7 @@
 package com.example.algorhythm.api.controller
 
 import com.example.algorhythm.api.domain.Question
+import com.example.algorhythm.api.repository.QuestionRepository
 import com.example.algorhythm.api.repository.UserRepository
 import com.example.algorhythm.api.repository.UserSessionRepository
 import com.example.algorhythm.api.service.*
@@ -18,7 +19,8 @@ class QuestionController (
     private val judge0Service: Judge0Service,
     private val userSessionRepository: UserSessionRepository,
     private val userRepository: UserRepository,
-    private val questionGeneratorService: QuestionGeneratorService,
+    private val questionRepository: QuestionRepository,
+    private val questionService: QuestionService,
     private val difficultyEngineService: DifficultyEngineService
 ) {
 
@@ -38,7 +40,7 @@ class QuestionController (
         userSession.currentDifficulty = newDifficulty
         userSessionRepository.save(userSession)
 
-        val question = questionGeneratorService.generateQuestion(newDifficulty, user.experienceLevel ?: "beginner")
+        val question = questionService.generateQuestion(newDifficulty, user.experienceLevel ?: "beginner")
         userSession.currentQuestionId = question.id
         userSession.totalAttempts = 0
         userSession.correctLastAnswer = false
@@ -50,6 +52,12 @@ class QuestionController (
     fun submitCode(@RequestBody request: CodeSubmissionRequest): SubmitResultResponse {
         val currentUser = getCurrentUser()
         return judge0Service.submitCode(request, currentUser.id)
+    }
+
+    @PostMapping("/run-tests")
+    fun runTestCases(@RequestBody request: CodeSubmissionRequest): SubmitResultResponse {
+        val currentUser = getCurrentUser()
+        return judge0Service.runTestCases(request, currentUser.id)
     }
 
     @PostMapping("/run")
