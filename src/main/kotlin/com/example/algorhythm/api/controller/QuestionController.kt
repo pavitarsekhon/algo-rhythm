@@ -20,7 +20,7 @@ class QuestionController (
     private val userSessionRepository: UserSessionRepository,
     private val userRepository: UserRepository,
     private val questionRepository: QuestionRepository,
-    private val questionGeneratorService: QuestionGeneratorService,
+    private val questionService: QuestionService,
     private val difficultyEngineService: DifficultyEngineService
 ) {
 
@@ -62,7 +62,7 @@ class QuestionController (
         userSession.currentDifficulty = newDifficulty
         userSessionRepository.save(userSession)
 
-        val question = questionGeneratorService.generateQuestion(newDifficulty, user.experienceLevel ?: "beginner")
+        val question = questionService.generateQuestion(newDifficulty, user.experienceLevel ?: "beginner")
         userSession.currentQuestionId = question.id
         userSession.totalAttempts = 0
         userSession.correctLastAnswer = false
@@ -74,6 +74,12 @@ class QuestionController (
     fun submitCode(@RequestBody request: CodeSubmissionRequest): SubmitResultResponse {
         val currentUser = getCurrentUser()
         return judge0Service.submitCode(request, currentUser.id)
+    }
+
+    @PostMapping("/run-tests")
+    fun runTestCases(@RequestBody request: CodeSubmissionRequest): SubmitResultResponse {
+        val currentUser = getCurrentUser()
+        return judge0Service.runTestCases(request, currentUser.id)
     }
 
     @PostMapping("/run")

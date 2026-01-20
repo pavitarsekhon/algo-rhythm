@@ -49,19 +49,14 @@ const CodeEditor = ({question, onNextQuestion, onEditorRef }) => {
                         onChange={(value) => setValue(value)}
                     />
                 </Box>
-                    <Box w="100%" display="flex" justifyContent="flex-start">
-                        <Box>
-                            <VStack spacing={4}>
-                                ...
-                                <Output
-                                    editorRef={editorRef}
-                                    language={language}
-                                    question={question}
-                                    onNextQuestion={onNextQuestion}
-                                />
-                            </VStack>
-                        </Box>
-                    </Box>
+                <Box w="100%">
+                    <Output
+                        editorRef={editorRef}
+                        language={language}
+                        question={question}
+                        onNextQuestion={onNextQuestion}
+                    />
+                </Box>
             </VStack>
         </Box>
     )
