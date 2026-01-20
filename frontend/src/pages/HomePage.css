@@ -1,4 +1,4 @@
-/* HomePage.css - Home/Login Page Styles */
+/* HomePage.css - Combined Login/Register Page Styles */
 
 .home-container {
     min-height: 100vh;
@@ -43,23 +43,52 @@
     z-index: 1;
 }
 
-/* Login Card */
-.login-card {
-    width: 450px;
+/* Auth Card */
+.auth-card {
+    width: 420px;
     background: white;
-    border-radius: 20px;
-    padding: 50px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border-radius: 24px;
+    padding: 48px;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
 }
 
-.login-card.expanded {
+.auth-card.expanded {
     transform: scale(1.02);
 }
 
-.login-header {
+.auth-card.register-mode {
+    width: 480px;
+}
+
+/* Auth Header */
+.auth-header {
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 32px;
+}
+
+.auth-title {
+    font-size: 32px;
+    font-weight: 800;
+    margin: 0 0 8px 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.auth-subtitle {
+    color: #666;
+    font-size: 15px;
+    margin: 0;
+    transition: all 0.3s ease;
+}
+
+/* Initial Buttons */
+.initial-buttons {
+    animation: fadeIn 0.5s ease-out;
 }
 
 /* Get Started Button */
@@ -115,58 +144,30 @@
     transform: translateX(5px);
 }
 
-/* Login Form Container Animation */
-.login-form-container {
+/* Form Container */
+.form-container {
     max-height: 0;
     opacity: 0;
     overflow: hidden;
-    transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
                 opacity 0.4s ease-in-out;
+    position: absolute;
+    width: calc(100% - 96px);
+    top: 140px;
+    left: 48px;
 }
 
-.login-form-container.visible {
-    max-height: 500px;
+.form-container.visible {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-height: 800px;
     opacity: 1;
+    animation: slideUp 0.4s ease-out;
 }
 
-.login-form-container.visible .form-label,
-.login-form-container.visible .form-input,
-.login-form-container.visible .login-button,
-.login-form-container.visible .register-link-container {
-    animation: slideUp 0.5s ease-out forwards;
-    opacity: 0;
-}
-
-.login-form-container.visible .form-label:nth-child(1) { animation-delay: 0.1s; }
-.login-form-container.visible .form-input:nth-child(2) { animation-delay: 0.15s; }
-.login-form-container.visible .form-label:nth-child(3) { animation-delay: 0.2s; }
-.login-form-container.visible .form-input:nth-child(4) { animation-delay: 0.25s; }
-.login-form-container.visible .login-button { animation-delay: 0.35s; }
-.login-form-container.visible .register-link-container { animation-delay: 0.45s; }
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.login-title {
-    font-size: 28px;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin-bottom: 8px;
-}
-
-.login-subtitle {
-    color: #666;
-    font-size: 15px;
-}
-
+/* Form Elements */
 .form-label {
     display: block;
     margin-bottom: 8px;
@@ -179,29 +180,58 @@
     width: 100%;
     padding: 14px 16px;
     font-size: 15px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid #e5e7eb;
     border-radius: 10px;
     outline: none;
     transition: all 0.3s;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     box-sizing: border-box;
+    background: #fafafa;
 }
 
 .form-input:focus {
     border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
 }
 
+.form-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group .form-input {
+    margin-bottom: 20px;
+}
+
+/* Error Message */
 .error-message {
-    padding: 12px;
-    background: #fee;
-    color: #c33;
-    border-radius: 8px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #dc2626;
+    border-radius: 10px;
     font-size: 14px;
     margin-bottom: 20px;
     font-weight: 500;
+    border: 1px solid #fca5a5;
 }
 
-.login-button {
+/* Submit Button */
+.submit-button {
     width: 100%;
     padding: 16px;
     font-size: 16px;
@@ -215,40 +245,97 @@
     margin-bottom: 20px;
 }
 
-.login-button:hover {
+.submit-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
 }
 
-.register-link-container {
+.submit-button:active {
+    transform: translateY(0);
+}
+
+/* Switch Mode */
+.switch-mode-container {
     text-align: center;
     font-size: 14px;
     color: #666;
 }
 
-.register-link {
+.switch-mode-link {
     background: none;
     border: none;
     color: #667eea;
     font-weight: 600;
     cursor: pointer;
     font-size: 14px;
+    transition: all 0.2s;
 }
 
-.register-link:hover {
+.switch-mode-link:hover {
+    color: #764ba2;
     text-decoration: underline;
 }
 
+/* Back Button */
+.back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.back-button:hover {
+    background: #f3f4f6;
+    color: #333;
+}
+
+/* Animations */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 /* Responsive */
-@media (max-width: 480px) {
-    .login-card {
+@media (max-width: 520px) {
+    .auth-card {
         width: 100%;
-        max-width: 450px;
-        padding: 30px;
+        max-width: 420px;
+        padding: 32px 24px;
     }
 
-    .login-title {
-        font-size: 24px;
+    .auth-card.register-mode {
+        width: 100%;
+    }
+
+    .auth-title {
+        font-size: 28px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
     }
 }
 
