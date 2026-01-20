@@ -7,6 +7,7 @@ function DashboardPage() {
     const navigate = useNavigate();
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [hoveredSegment, setHoveredSegment] = useState(null);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -33,6 +34,84 @@ function DashboardPage() {
             hard: "#ef4444"
         };
         return colors[difficulty?.toLowerCase()] || "#6b7280";
+    };
+
+    // Colors for pie chart
+    const pieColors = [
+        "#667eea", "#764ba2", "#10b981", "#f59e0b", "#ef4444",
+        "#8b5cf6", "#06b6d4", "#ec4899", "#14b8a6", "#f97316",
+        "#6366f1", "#84cc16", "#22d3d8", "#a855f7", "#eab308",
+        "#3b82f6", "#22c55e", "#d946ef", "#0ea5e9", "#fb923c",
+        "#8b5cf6", "#34d399", "#f472b6", "#2dd4bf", "#fbbf24"
+    ];
+
+    // Get total problems completed from progress
+    const getTotalCompleted = () => {
+        if (!profile?.progress) return 0;
+        return profile.progress.easyCompleted + profile.progress.mediumCompleted + profile.progress.hardCompleted;
+    };
+
+    // Get topics with counts > 0, sorted by count
+    const getActiveTopics = () => {
+        if (!profile?.progress?.topicCounts) return [];
+        return Object.entries(profile.progress.topicCounts)
+            .filter(([_, count]) => count > 0)
+            .sort((a, b) => b[1] - a[1]);
+    };
+
+    // Calculate total topic completions for pie chart
+    const getTotalTopicCompletions = () => {
+        return getActiveTopics().reduce((sum, [_, count]) => sum + count, 0);
+    };
+
+    // Generate pie chart segments
+    const getPieChartSegments = () => {
+        const topics = getActiveTopics();
+        const total = getTotalTopicCompletions();
+        if (total === 0) return [];
+
+        let currentAngle = 0;
+        return topics.map(([topic, count], index) => {
+            const percentage = (count / total) * 100;
+            const angle = (count / total) * 360;
+            const startAngle = currentAngle;
+            currentAngle += angle;
+
+            return {
+                topic,
+                count,
+                percentage,
+                startAngle,
+                endAngle: currentAngle,
+                color: pieColors[index % pieColors.length]
+            };
+        });
+    };
+
+    // SVG arc path generator
+    const describeArc = (x, y, radius, startAngle, endAngle) => {
+        if (endAngle - startAngle >= 360) {
+            // Full circle
+            return `M ${x - radius} ${y} A ${radius} ${radius} 0 1 1 ${x + radius} ${y} A ${radius} ${radius} 0 1 1 ${x - radius} ${y}`;
+        }
+        const start = polarToCartesian(x, y, radius, endAngle);
+        const end = polarToCartesian(x, y, radius, startAngle);
+        const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+
+        return [
+            "M", x, y,
+            "L", start.x, start.y,
+            "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y,
+            "Z"
+        ].join(" ");
+    };
+
+    const polarToCartesian = (centerX, centerY, radius, angleInDegrees) => {
+        const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+        return {
+            x: centerX + (radius * Math.cos(angleInRadians)),
+            y: centerY + (radius * Math.sin(angleInRadians))
+        };
     };
 
     if (loading) {
@@ -85,7 +164,7 @@ function DashboardPage() {
                             </svg>
                         </div>
                         <div className="stat-info">
-                            <span className="stat-value">{profile?.totalCorrect || 0}</span>
+                            <span className="stat-value">{getTotalCompleted()}</span>
                             <span className="stat-label">Problems Solved</span>
                         </div>
                     </div>
@@ -122,28 +201,123 @@ function DashboardPage() {
                     </div>
                 </div>
 
-                {/* Progress Section */}
-                <div className="progress-section">
-                    <h2>Your Progress</h2>
-                    <div className="progress-card">
-                        <div className="progress-header">
-                            <span>Problems Solved</span>
-                            <span className="progress-count">{profile?.totalCorrect || 0} / {profile?.totalAttempts || 0}</span>
-                        </div>
-                        <div className="progress-bar-container">
-                            <div
-                                className="progress-bar"
-                                style={{
-                                    width: `${profile?.successRate || 0}%`,
-                                    background: `linear-gradient(90deg, #667eea 0%, #764ba2 100%)`
-                                }}
-                            ></div>
-                        </div>
-                        <div className="progress-footer">
-                            <span className="progress-percentage">{profile?.successRate || 0}% success rate</span>
+                {/* Difficulty Breakdown */}
+                {profile?.progress && (
+                    <div className="difficulty-section">
+                        <h2>Difficulty Breakdown</h2>
+                        <div className="difficulty-cards">
+                            <div className="difficulty-card easy">
+                                <div className="difficulty-count">{profile.progress.easyCompleted}</div>
+                                <div className="difficulty-label">Easy</div>
+                                <div className="difficulty-bar">
+                                    <div
+                                        className="difficulty-fill"
+                                        style={{
+                                            width: getTotalCompleted() > 0
+                                                ? `${(profile.progress.easyCompleted / getTotalCompleted()) * 100}%`
+                                                : '0%'
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                            <div className="difficulty-card medium">
+                                <div className="difficulty-count">{profile.progress.mediumCompleted}</div>
+                                <div className="difficulty-label">Medium</div>
+                                <div className="difficulty-bar">
+                                    <div
+                                        className="difficulty-fill"
+                                        style={{
+                                            width: getTotalCompleted() > 0
+                                                ? `${(profile.progress.mediumCompleted / getTotalCompleted()) * 100}%`
+                                                : '0%'
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                            <div className="difficulty-card hard">
+                                <div className="difficulty-count">{profile.progress.hardCompleted}</div>
+                                <div className="difficulty-label">Hard</div>
+                                <div className="difficulty-bar">
+                                    <div
+                                        className="difficulty-fill"
+                                        style={{
+                                            width: getTotalCompleted() > 0
+                                                ? `${(profile.progress.hardCompleted / getTotalCompleted()) * 100}%`
+                                                : '0%'
+                                        }}
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
+
+                {/* Topic Progress - Pie Chart */}
+                {profile?.progress && (
+                    <div className="topics-section">
+                        <h2>Topics Mastered</h2>
+                        {getActiveTopics().length > 0 ? (
+                            <div className="topics-chart-container">
+                                {/* Pie Chart */}
+                                <div className="pie-chart-wrapper">
+                                    <svg viewBox="0 0 200 200" className="pie-chart">
+                                        {getPieChartSegments().map((segment, index) => (
+                                            <path
+                                                key={segment.topic}
+                                                d={describeArc(100, 100, 85, segment.startAngle, segment.endAngle)}
+                                                fill={segment.color}
+                                                className={`pie-segment ${hoveredSegment === segment.topic ? 'hovered' : ''}`}
+                                                style={{
+                                                    animationDelay: `${index * 0.05}s`,
+                                                    opacity: hoveredSegment && hoveredSegment !== segment.topic ? 0.5 : 1
+                                                }}
+                                                onMouseEnter={() => setHoveredSegment(segment.topic)}
+                                                onMouseLeave={() => setHoveredSegment(null)}
+                                            >
+                                                <title>{segment.topic}: {segment.count} ({segment.percentage.toFixed(1)}%)</title>
+                                            </path>
+                                        ))}
+                                        {/* Center circle for donut effect */}
+                                        <circle cx="100" cy="100" r="55" fill="white" />
+                                        <text x="100" y="92" textAnchor="middle" className="pie-center-number">
+                                            {getTotalTopicCompletions()}
+                                        </text>
+                                        <text x="100" y="112" textAnchor="middle" className="pie-center-label">
+                                            Total
+                                        </text>
+                                    </svg>
+                                </div>
+
+                                {/* Legend */}
+                                <div className="pie-legend">
+                                    {getPieChartSegments().map((segment) => (
+                                        <div
+                                            key={segment.topic}
+                                            className={`legend-item ${hoveredSegment === segment.topic ? 'hovered' : ''}`}
+                                            onMouseEnter={() => setHoveredSegment(segment.topic)}
+                                            onMouseLeave={() => setHoveredSegment(null)}
+                                        >
+                                            <span
+                                                className="legend-color"
+                                                style={{ backgroundColor: segment.color }}
+                                            />
+                                            <span className="legend-topic">{segment.topic}</span>
+                                            <span className="legend-count">{segment.count}</span>
+                                            <span className="legend-percentage">
+                                                {segment.percentage.toFixed(1)}%
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="no-topics">
+                                <div className="no-topics-icon">📊</div>
+                                <p>Complete problems to see your topic progress!</p>
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {/* Profile Info */}
                 <div className="profile-section">

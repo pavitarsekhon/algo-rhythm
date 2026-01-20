@@ -186,21 +186,33 @@
     transition: all 0.3s;
     margin-bottom: 20px;
     box-sizing: border-box;
-    background: #fafafa;
+    background: #ffffff;
+    color: #1a1a2e;
+}
+
+.form-input::placeholder {
+    color: #9ca3af;
 }
 
 .form-input:focus {
     border-color: #667eea;
-    background: white;
+    background: #ffffff;
     box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
 }
 
 .form-select {
     cursor: pointer;
     appearance: none;
+    color: #1a1a2e;
+    background-color: #ffffff;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 16px center;
+}
+
+.form-select option {
+    color: #1a1a2e;
+    background: #ffffff;
 }
 
 .form-row {
