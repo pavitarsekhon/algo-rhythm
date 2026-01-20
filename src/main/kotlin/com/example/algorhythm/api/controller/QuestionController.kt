@@ -24,6 +24,28 @@ class QuestionController (
     private val difficultyEngineService: DifficultyEngineService
 ) {
 
+    /**
+     * Get the user's current question without advancing to the next one.
+     * If no current question exists, returns a new question.
+     */
+    @GetMapping("/current")
+    fun getCurrentQuestion(): Question? {
+        val currentUser = getCurrentUser()
+        val userSession = userSessionRepository.findByUserId(currentUser.id)
+            ?: error("User session not found. Start a session first.")
+
+        val currentQuestionId = userSession.currentQuestionId
+        if (currentQuestionId != null && currentQuestionId > 0) {
+            val question = questionRepository.findById(currentQuestionId).orElse(null)
+            if (question != null) {
+                return question
+            }
+        }
+
+        // No current question, get a new one
+        return getNextQuestion()
+    }
+
     @GetMapping("/next")
     fun getNextQuestion(): Question? {
         val currentUser = getCurrentUser()
