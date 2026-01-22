@@ -64,10 +64,8 @@ class Judge0Service(
     fun submitCode(request: CodeSubmissionRequest, userId: Long): SubmitResultResponse {
         // For submit, use ALL test cases (including hidden ones)
         val ioPairs = ioPairRepository.findByQuestionIdAndHidden(request.questionId, true).take(5)
-        return runTests(ioPairs, request)
-
-
-
+        val testCases = ioPairs.map { RunnableTestCase(it.inputText, it.expectedOutput) }
+        return runTests(testCases, request)
     }
 
     /**
@@ -76,23 +74,48 @@ class Judge0Service(
      * before submitting against all test cases.
      */
     fun runTestCases(request: CodeSubmissionRequest, userId: Long): SubmitResultResponse {
+        if (!request.customTestCases.isNullOrEmpty()) {
+            val testCases = request.customTestCases.map {
+                RunnableTestCase(
+                    input = it.input,
+                    expectedOutput = it.expectedOutput ?: ""
+                )
+            }
+            return runTests(testCases, request)
+        }
+
         // Only get non-hidden test cases
         val ioPairs = ioPairRepository.findByQuestionIdAndHidden(request.questionId, false).take(3)
-        return runTests(ioPairs, request)
+        val testCases = ioPairs.map { RunnableTestCase(it.inputText, it.expectedOutput) }
+        return runTests(testCases, request)
     }
 
-    private fun runTests(ioPairs: List<IOPair>, request: CodeSubmissionRequest): SubmitResultResponse {
+    private fun runTests(testCases: List<RunnableTestCase>, request: CodeSubmissionRequest): SubmitResultResponse {
         val results = mutableListOf<TestResult>()
 
-        ioPairs.forEach { pair ->
-            val testCode = wrapFunctionCode(request.code, pair.inputText, request.language)
+        testCases.forEach { testCase ->
+            val testCode = wrapFunctionCode(request.code, testCase.input, request.language)
             val result = runCode(testCode, request.language, "")
 
             val output = result.stdout?.trim() ?: ""
             val stderr = result.stderr?.trim()
-            val expected = pair.expectedOutput.trim()
-            val correct = normalize(expected) == normalize(output)
-            results.add(TestResult(pair.inputText, expected, output, stderr, correct))
+            val expected = testCase.expectedOutput.trim()
+
+            // If expected is empty, we consider it correct (for custom test cases where user just wants output)
+            val correct = if (expected.isEmpty()) {
+                true
+            } else {
+                val normExpected = normalize(expected)
+                val normOutput = normalize(output)
+                if (normExpected == normOutput) {
+                    true
+                } else {
+                    // Try loose match (ignoring all whitespace) to handle spacing differences like [1, 2] vs [1,2]
+                    normExpected.replace("\\s".toRegex(), "") == normOutput.replace("\\s".toRegex(), "")
+                }
+            }
+
+            results.add(TestResult(testCase.input, expected, output, stderr, correct))
         }
 
         val testsPassed = results.all { it.correct }
@@ -207,6 +230,11 @@ data class Judge0ResultResponse(
     val compile_output: String?,
     val time: String?,
     val memory: Int?
+)
+
+data class RunnableTestCase(
+    val input: String,
+    val expectedOutput: String
 )
 
 data class StatusInfo(
