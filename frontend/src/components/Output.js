@@ -6,6 +6,8 @@ const Output = ({ editorRef, language, question, onNextQuestion}) => {
     const [runResult, setRunResult] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isRunning, setIsRunning] = useState(false);
+    const [useCustomTestCases, setUseCustomTestCases] = useState(false);
+    const [customTestCases, setCustomTestCases] = useState([{ input: "", expectedOutput: "" }]);
 
     const submitSourceCode = async () => {
         const sourceCode = editorRef.current.getValue();
@@ -30,7 +32,16 @@ const Output = ({ editorRef, language, question, onNextQuestion}) => {
         setIsRunning(true);
         setSubmitResult(null);
         try {
-            const result = await runTestCases(language, sourceCode, question);
+            let testCasesToSend = null;
+            if (useCustomTestCases) {
+                testCasesToSend = customTestCases
+                    .filter(tc => tc.input.trim() !== "")
+                    .map(tc => ({
+                        input: tc.input,
+                        expectedOutput: tc.expectedOutput || ""
+                    }));
+            }
+            const result = await runTestCases(language, sourceCode, question, testCasesToSend);
             setRunResult(result.data);
         } catch (error) {
             setRunResult({ error: "Run failed" });
@@ -133,6 +144,81 @@ const Output = ({ editorRef, language, question, onNextQuestion}) => {
                     >
                         Next →
                     </button>
+                )}
+            </div>
+
+            <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: "600", color: "#1e293b", cursor: "pointer", marginBottom: "8px" }}>
+                    <input
+                        type="checkbox"
+                        checked={useCustomTestCases}
+                        onChange={(e) => setUseCustomTestCases(e.target.checked)}
+                        style={{ width: "16px", height: "16px" }}
+                    />
+                    Use Custom Test Cases
+                </label>
+
+                {useCustomTestCases && (
+                    <div style={{ background: "#1e293b", padding: "16px", borderRadius: "8px", border: "1px solid #334155" }}>
+                        {customTestCases.map((tc, index) => (
+                            <div key={index} style={{ marginBottom: "12px", paddingBottom: "12px", borderBottom: index < customTestCases.length - 1 ? "1px solid #334155" : "none" }}>
+                                <div style={{ display: "flex", gap: "12px", marginBottom: "8px" }}>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ color: "#94a3b8", fontSize: "12px", marginBottom: "4px" }}>Input</div>
+                                        <textarea
+                                            value={tc.input}
+                                            onChange={(e) => {
+                                                const newCases = [...customTestCases];
+                                                newCases[index].input = e.target.value;
+                                                setCustomTestCases(newCases);
+                                            }}
+                                            style={{
+                                                width: "100%", height: "60px", background: "#0f172a", color: "#e2e8f0",
+                                                border: "1px solid #334155", borderRadius: "4px", padding: "8px", fontFamily: "monospace", resize: "vertical"
+                                            }}
+                                            placeholder="Input"
+                                        />
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ color: "#94a3b8", fontSize: "12px", marginBottom: "4px" }}>Expected Output (Optional)</div>
+                                        <textarea
+                                            value={tc.expectedOutput}
+                                            onChange={(e) => {
+                                                const newCases = [...customTestCases];
+                                                newCases[index].expectedOutput = e.target.value;
+                                                setCustomTestCases(newCases);
+                                            }}
+                                            style={{
+                                                width: "100%", height: "60px", background: "#0f172a", color: "#e2e8f0",
+                                                border: "1px solid #334155", borderRadius: "4px", padding: "8px", fontFamily: "monospace", resize: "vertical"
+                                            }}
+                                            placeholder="Expected output"
+                                        />
+                                    </div>
+                                    {customTestCases.length > 1 && (
+                                        <button
+                                            onClick={() => {
+                                                const newCases = customTestCases.filter((_, i) => i !== index);
+                                                setCustomTestCases(newCases);
+                                            }}
+                                            style={{ height: "24px", alignSelf: "center", color: "#ef4444", background: "none", border: "none", cursor: "pointer" }}
+                                        >
+                                            ✕
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                        <button
+                            onClick={() => setCustomTestCases([...customTestCases, { input: "", expectedOutput: "" }])}
+                            style={{
+                                padding: "6px 12px", fontSize: "12px", color: "#3b82f6", background: "rgba(59, 130, 246, 0.1)",
+                                border: "1px solid #3b82f6", borderRadius: "4px", cursor: "pointer"
+                            }}
+                        >
+                            + Add Test Case
+                        </button>
+                    </div>
                 )}
             </div>
 
