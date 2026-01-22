@@ -1,0 +1,273 @@
+/* Sidebar.css - Notion-style collapsible sidebar */
+
+/* Hover trigger area */
+.sidebar-trigger {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 48px;
+    height: 100vh;
+    z-index: 1001;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 16px;
+    padding-left: 12px;
+}
+
+.trigger-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    color: #91929e;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.trigger-icon:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: #37352f;
+}
+
+/* Sidebar container */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 260px;
+    height: 100vh;
+    background: #fbfbfa;
+    border-right: 1px solid rgba(0, 0, 0, 0.06);
+    z-index: 1002;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(-260px);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+}
+
+.sidebar.expanded {
+    transform: translateX(0);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Sidebar Header */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 12px 12px 14px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.15s ease;
+}
+
+.sidebar-logo:hover {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.logo-icon {
+    font-size: 20px;
+}
+
+.logo-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: #37352f;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.pin-button {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    color: #91929e;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.pin-button:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: #37352f;
+}
+
+.pin-button.pinned {
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+}
+
+/* Navigation */
+.sidebar-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+}
+
+.nav-section {
+    padding: 4px 8px;
+}
+
+.nav-section-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #91929e;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 8px 8px 4px;
+    margin-top: 8px;
+}
+
+.nav-section:first-child .nav-section-label {
+    margin-top: 0;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    color: #37352f;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    margin: 1px 0;
+}
+
+.nav-item:hover {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.nav-item.active {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+}
+
+.nav-item.active .nav-icon {
+    color: #667eea;
+}
+
+.nav-icon {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #91929e;
+    flex-shrink: 0;
+}
+
+.nav-item:hover .nav-icon {
+    color: #37352f;
+}
+
+.nav-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+    padding: 8px;
+    border-top: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.logout-button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #37352f;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.logout-button:hover {
+    background: rgba(235, 87, 87, 0.1);
+    color: #eb5757;
+}
+
+.logout-button:hover .nav-icon {
+    color: #eb5757;
+}
+
+/* Overlay */
+.sidebar-overlay {
+    display: none;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+    .sidebar-trigger {
+        width: 100%;
+        height: 56px;
+        background: white;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        padding: 12px 16px;
+        align-items: center;
+    }
+
+    .sidebar.expanded {
+        box-shadow: 0 0 60px rgba(0, 0, 0, 0.2);
+    }
+
+    .sidebar-overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 1001;
+        opacity: 0;
+        animation: fadeIn 0.2s ease forwards;
+    }
+
+    @keyframes fadeIn {
+        to { opacity: 1; }
+    }
+}
+
+/* Scrollbar styling */
+.sidebar-nav::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.2);
+}
+

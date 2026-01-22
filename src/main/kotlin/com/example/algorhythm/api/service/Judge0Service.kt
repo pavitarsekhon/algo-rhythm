@@ -4,6 +4,7 @@ import com.example.algorhythm.api.enum.ExecutionType
 import com.example.algorhythm.api.repository.IOPairRepository
 import com.example.algorhythm.api.repository.QuestionRepository
 import com.example.algorhythm.api.controller.QuestionController.CodeSubmissionRequest
+import com.example.algorhythm.api.domain.IOPair
 import com.example.algorhythm.api.repository.UserSessionRepository
 import com.example.algorhythm.consts.SUPPORTED_LANGUAGES
 import com.example.algorhythm.util.IndentationUtil
@@ -61,33 +62,64 @@ class Judge0Service(
     }
 
     fun submitCode(request: CodeSubmissionRequest, userId: Long): SubmitResultResponse {
-        val questionId = request.questionId
-        val userSession = userSessionRepository.findByUserId(userId) ?: throw IllegalArgumentException("User does not have a session")
-        val question = questionRepository.findById(questionId)
-            .orElseThrow { IllegalArgumentException("Question not found") }
+        // For submit, use ALL test cases (including hidden ones)
+        val ioPairs = ioPairRepository.findByQuestionIdAndHidden(request.questionId, true).take(5)
+        val testCases = ioPairs.map { RunnableTestCase(it.inputText, it.expectedOutput) }
+        return runTests(testCases, request)
+    }
 
-        val ioPairs = ioPairRepository.findByQuestionId(questionId).take(3) // limit to first 3 test cases
+    /**
+     * Run code against only non-hidden (visible) test cases.
+     * This is used for the "Run" button to let users test their code
+     * before submitting against all test cases.
+     */
+    fun runTestCases(request: CodeSubmissionRequest, userId: Long): SubmitResultResponse {
+        if (!request.customTestCases.isNullOrEmpty()) {
+            val testCases = request.customTestCases.map {
+                RunnableTestCase(
+                    input = it.input,
+                    expectedOutput = it.expectedOutput ?: ""
+                )
+            }
+            return runTests(testCases, request)
+        }
+
+        // Only get non-hidden test cases
+        val ioPairs = ioPairRepository.findByQuestionIdAndHidden(request.questionId, false).take(3)
+        val testCases = ioPairs.map { RunnableTestCase(it.inputText, it.expectedOutput) }
+        return runTests(testCases, request)
+    }
+
+    private fun runTests(testCases: List<RunnableTestCase>, request: CodeSubmissionRequest): SubmitResultResponse {
         val results = mutableListOf<TestResult>()
 
-        ioPairs.forEach { pair ->
-            val testCode = wrapFunctionCode(request.code, pair.inputText, request.language)
+        testCases.forEach { testCase ->
+            val testCode = wrapFunctionCode(request.code, testCase.input, request.language)
             val result = runCode(testCode, request.language, "")
 
             val output = result.stdout?.trim() ?: ""
-            val expected = pair.expectedOutput.trim()
-            val correct = normalize(expected) == normalize(output)
-            results.add(TestResult(pair.inputText, expected, output, correct))
+            val stderr = result.stderr?.trim()
+            val expected = testCase.expectedOutput.trim()
+
+            // If expected is empty, we consider it correct (for custom test cases where user just wants output)
+            val correct = if (expected.isEmpty()) {
+                true
+            } else {
+                val normExpected = normalize(expected)
+                val normOutput = normalize(output)
+                if (normExpected == normOutput) {
+                    true
+                } else {
+                    // Try loose match (ignoring all whitespace) to handle spacing differences like [1, 2] vs [1,2]
+                    normExpected.replace("\\s".toRegex(), "") == normOutput.replace("\\s".toRegex(), "")
+                }
+            }
+
+            results.add(TestResult(testCase.input, expected, output, stderr, correct))
         }
 
         val testsPassed = results.all { it.correct }
-        if (testsPassed) {
-            userSessionService.increaseDifficulty(userId)
-        }
-
-        userSession.totalAttempts += 1
-        userSessionRepository.save(userSession)
         return SubmitResultResponse(testsPassed, results)
-
     }
 
     fun wrapFunctionCode(userCode: String, inputText: String, language: String): String {
@@ -200,6 +232,11 @@ data class Judge0ResultResponse(
     val memory: Int?
 )
 
+data class RunnableTestCase(
+    val input: String,
+    val expectedOutput: String
+)
+
 data class StatusInfo(
     val id: Int,
     val description: String
@@ -209,16 +246,12 @@ data class TestResult(
     val input: String,
     val expected: String,
     val actual: String,
+    val stderr: String?,
     val correct: Boolean
 )
 
 data class SubmitResultResponse(
     val allPassed: Boolean,
     val results: List<TestResult>,
-    val error: String? = null
-)
-
-data class RunCodeResponse(
-    val output: String?,
     val error: String? = null
 )
