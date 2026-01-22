@@ -25,6 +25,9 @@ class IOPair(
     @ManyToOne
     @JsonBackReference
     @JoinColumn(name = "question_id")
-    val question: Question? = null
+    val question: Question? = null,
+
+    @Column(name="hidden" , nullable = false)
+    val hidden: Boolean = false
 
 )
