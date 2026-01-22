@@ -21,7 +21,8 @@ class QuestionController (
     private val userRepository: UserRepository,
     private val questionRepository: QuestionRepository,
     private val questionService: QuestionService,
-    private val difficultyEngineService: DifficultyEngineService
+    private val difficultyEngineService: DifficultyEngineService,
+    private val userProgressService: UserProgressService
 ) {
 
     /**
@@ -73,7 +74,21 @@ class QuestionController (
     @PostMapping("/submit")
     fun submitCode(@RequestBody request: CodeSubmissionRequest): SubmitResultResponse {
         val currentUser = getCurrentUser()
-        return judge0Service.submitCode(request, currentUser.id)
+        val result = judge0Service.submitCode(request, currentUser.id)
+
+        // If all tests passed, record the completion in user progress
+        if (result.allPassed) {
+            val question = questionRepository.findById(request.questionId).orElse(null)
+            if (question != null) {
+                userProgressService.recordCompletion(
+                    user = currentUser,
+                    difficulty = question.difficulty?.toString() ?: "Easy",
+                    topics = question.topics
+                )
+            }
+        }
+
+        return result
     }
 
     @PostMapping("/run-tests")

@@ -3,8 +3,10 @@ package com.example.algorhythm.api.service
 import com.example.algorhythm.api.controller.AuthRequest
 import com.example.algorhythm.api.domain.User
 import com.example.algorhythm.api.domain.UserSession
+import com.example.algorhythm.api.domain.UserProgress
 import com.example.algorhythm.api.repository.UserRepository
 import com.example.algorhythm.api.repository.UserSessionRepository
+import com.example.algorhythm.api.repository.UserProgressRepository
 import com.example.algorhythm.api.security.JwtUtil
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
@@ -15,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 class AuthService(
     private val userRepository: UserRepository,
     private val userSessionRepository: UserSessionRepository,
+    private val userProgressRepository: UserProgressRepository,
     private val passwordEncoder: PasswordEncoder,
     private val jwtUtil: JwtUtil
 ) {
@@ -29,12 +32,19 @@ class AuthService(
         val hashedPassword = passwordEncoder.encode(password)
         val user = User(username = username, password = hashedPassword, age = req.age, knownLanguages = req.knownLanguages, experienceLevel = req.experienceLevel)
         val savedUser = userRepository.save(user)
+
+        // Create user session
         val userSession = UserSession(
             user = savedUser,
             active = true,
             currentQuestionId = 1
         )
         userSessionRepository.save(userSession)
+
+        // Create user progress tracker
+        val userProgress = UserProgress(user = savedUser)
+        userProgressRepository.save(userProgress)
+
         return savedUser
     }
 
