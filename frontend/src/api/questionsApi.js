@@ -3,11 +3,12 @@ import API from "./axiosConfig";
 export const runSourceCode = (language, sourceCode) =>
     API.post("/questions/run", { language, code: sourceCode });
 
-export const runTestCases = (language, code, question) =>
+export const runTestCases = (language, code, question, customTestCases = null) =>
     API.post("/questions/run-tests", {
         language,
         code,
         questionId: question.id,
+        customTestCases,
     });
 
 export const submitCode = (language, code, question) =>

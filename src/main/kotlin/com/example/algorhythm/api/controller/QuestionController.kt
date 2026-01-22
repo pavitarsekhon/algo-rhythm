@@ -104,7 +104,13 @@ class QuestionController (
         val code: String,
         val language: String,
         val input: String? = null,
-        val questionId: Long
+        val questionId: Long,
+        val customTestCases: List<CustomTestCase>? = null
+    )
+
+    data class CustomTestCase(
+        val input: String,
+        val expectedOutput: String? = null
     )
 
     data class RunCodeRequest(
