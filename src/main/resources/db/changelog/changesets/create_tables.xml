@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <!-- USERS -->
+    <changeSet id="create-users-table" author="algorhythm">
+        <createTable tableName="users">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="username" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="age" type="INT"/>
+            <column name="experience_level" type="VARCHAR(255)"/>
+            <column name="known_languages" type="VARCHAR(255)"/>
+            <column name="is_admin" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- QUESTION -->
+    <changeSet id="create-question-table" author="algorhythm">
+        <createTable tableName="question">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="execution_type" type="VARCHAR(50)" defaultValue="STDIN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="topics" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="difficulty" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="prompt" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="function_name" type="VARCHAR(255)"/>
+            <column name="starter_code" type="TEXT"/>
+        </createTable>
+    </changeSet>
+
+    <!-- IOPAIR -->
+    <changeSet id="create-iopair-table" author="algorhythm">
+        <createTable tableName="io_pair">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="input_text" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expected_output" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="question_id" type="BIGINT">
+                <constraints foreignKeyName="fk_iopair_question" references="question(id)"/>
+            </column>
+            <column name="hidden" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- CHAT MESSAGE -->
+    <changeSet id="create-chat-message-table" author="algorhythm">
+        <createTable tableName="chat_message">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_chat_message_user" references="users(id)"/>
+            </column>
+            <column name="question_id" type="BIGINT"/>
+            <column name="sender" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="message" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="timestamp" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- USER SESSION -->
+    <changeSet id="create-user-session-table" author="algorhythm">
+        <createTable tableName="user_session">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_user_session_user" references="users(id)"/>
+            </column>
+            <column name="active" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="current_question_id" type="BIGINT"/>
+            <column name="current_difficulty" type="VARCHAR(50)" defaultValue="EASY">
+                <constraints nullable="false"/>
+            </column>
+            <column name="correct_last_answer" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_correct" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_attempts" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>
