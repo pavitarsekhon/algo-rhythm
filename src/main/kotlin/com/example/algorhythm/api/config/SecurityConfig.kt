@@ -9,11 +9,15 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import org.springframework.web.filter.OncePerRequestFilter
 
 @Configuration
@@ -24,21 +28,34 @@ class SecurityConfig(private val jwtUtil: JwtUtil) {
     fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
     @Bean
-    fun filterChain(http: HttpSecurity): SecurityFilterChain {
-        http
-            .csrf { it.disable() }
-            .authorizeHttpRequests {
-                it.requestMatchers("/api/auth/**").permitAll()
-                it.requestMatchers("/api/chat").permitAll()   // 👈 place BEFORE anyRequest
-                it.requestMatchers("/api/questions/run").permitAll() // optional if needed
-                it.requestMatchers("/api/questions/submit").authenticated()
-                it.requestMatchers("/api/questions/next").authenticated()
+    fun corsConfigurationSource(): CorsConfigurationSource {
+        val configuration = CorsConfiguration()
+        configuration.allowedOriginPatterns = listOf("*")
+        configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
+        configuration.allowedHeaders = listOf("*")
+        configuration.allowCredentials = true
+        configuration.maxAge = 3600L
 
-                it.anyRequest().authenticated()              // 👈 ALWAYS LAST
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", configuration)
+        return source
+    }
+
+    @Bean
+    fun filterChain(http: HttpSecurity): SecurityFilterChain {
+        return http
+            .cors { it.configurationSource(corsConfigurationSource()) }
+            .csrf { it.disable() }
+            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .authorizeHttpRequests { auth ->
+                auth
+                    .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                    .requestMatchers("/api/chat").permitAll()
+                    .requestMatchers("/api/questions/run").permitAll()
+                    .anyRequest().authenticated()
             }
             .addFilterBefore(JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter::class.java)
-
-        return http.build()
+            .build()
     }
 
     class JwtFilter(private val jwtUtil: JwtUtil) : OncePerRequestFilter() {
@@ -47,13 +64,29 @@ class SecurityConfig(private val jwtUtil: JwtUtil) {
             response: HttpServletResponse,
             filterChain: FilterChain
         ) {
+            // Skip JWT validation for OPTIONS requests (CORS preflight)
+            if (request.method == "OPTIONS") {
+                filterChain.doFilter(request, response)
+                return
+            }
+
+            // Skip JWT validation for auth endpoints
+            if (request.requestURI.startsWith("/api/auth/")) {
+                filterChain.doFilter(request, response)
+                return
+            }
+
             val header = request.getHeader("Authorization")
             if (header != null && header.startsWith("Bearer ")) {
                 val token = header.substring(7)
-                val username = jwtUtil.extractUsername(token)
-                if (username != null) {
-                    val auth = UsernamePasswordAuthenticationToken(username, null, listOf())
-                    SecurityContextHolder.getContext().authentication = auth
+                try {
+                    val username = jwtUtil.extractUsername(token)
+                    if (username != null && SecurityContextHolder.getContext().authentication == null) {
+                        val auth = UsernamePasswordAuthenticationToken(username, null, emptyList())
+                        SecurityContextHolder.getContext().authentication = auth
+                    }
+                } catch (e: Exception) {
+                    // Invalid token - continue without auth
                 }
             }
             filterChain.doFilter(request, response)
