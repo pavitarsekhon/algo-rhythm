@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="seed-questions-v3" author="pavitarsekhon">
+        <preConditions onFail="MARK_RAN">
+            <!-- Only run if the question table is empty to avoid duplicates on re-runs -->
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM question</sqlCheck>
+        </preConditions>
+        <comment>Seeding initial question and IOPair data</comment>
+        <sqlFile path="seed_data.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 stripComments="true"/>
+    </changeSet>
+
+</databaseChangeLog>
