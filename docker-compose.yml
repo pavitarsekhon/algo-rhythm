@@ -10,7 +10,7 @@ services:
       POSTGRES_USER: algorhythm_user
       POSTGRES_PASSWORD: SecurePass123!
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
@@ -23,10 +23,13 @@ services:
 
   # Spring Boot Backend
   backend:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
     image: algorhythm.azurecr.io/algorhythm-backend:latest
     container_name: algorhythm-backend
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/algorhythm_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5433/algorhythm_db
       SPRING_DATASOURCE_USERNAME: algorhythm_user
       SPRING_DATASOURCE_PASSWORD: SecurePass123!
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
@@ -41,6 +44,9 @@ services:
 
   # React Frontend
   frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     image: algorhythm.azurecr.io/algorhythm-frontend:latest
     container_name: algorhythm-frontend
     depends_on:

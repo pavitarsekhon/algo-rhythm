@@ -139,15 +139,16 @@ def insert_question(conn, question_data):
         question_id = cursor.fetchone()[0]
 
         insert_iopair_sql = """
-                            INSERT INTO iopair (input_text, expected_output, question_id)
-                            VALUES (%s, %s, %s) \
+                            INSERT INTO iopair (input_text, expected_output, question_id, hidden)
+                            VALUES (%s, %s, %s, %s) \
                             """
 
         io_pairs = [
             (
                 pair[0],
                 pair[1],
-                question_id
+                question_id,
+                False
             )
             for pair in question_data['input_output_pairs']
         ]
