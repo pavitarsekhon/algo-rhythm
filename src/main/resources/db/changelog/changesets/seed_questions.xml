@@ -6,6 +6,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <changeSet id="seed-questions-v3" author="pavitarsekhon">
+        <validCheckSum>9:eabaf4ddc41b825a98f56903f25deae4</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <!-- Only run if the question table is empty to avoid duplicates on re-runs -->
             <sqlCheck expectedResult="0">SELECT COUNT(*) FROM question</sqlCheck>
