@@ -353,16 +353,6 @@ function DashboardPage() {
                             <h3>Continue Practice</h3>
                             <p>Pick up where you left off with AI-powered questions</p>
                         </div>
-                        <div className="quickstart-card" onClick={() => navigate("/question")}>
-                            <div className="quickstart-icon">🚀</div>
-                            <h3>Challenge Yourself</h3>
-                            <p>Test your skills with progressively harder problems</p>
-                        </div>
-                        <div className="quickstart-card" onClick={() => navigate("/question")}>
-                            <div className="quickstart-icon">💡</div>
-                            <h3>Get AI Help</h3>
-                            <p>Chat with our AI tutor for hints and guidance</p>
-                        </div>
                     </div>
                 </div>
             </div>

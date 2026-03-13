@@ -10,7 +10,7 @@ function Sidebar({ isLoggedIn, isAdmin, onLogout }) {
 
     const isActive = (path) => location.pathname === path;
 
-    if (!isLoggedIn) return null;
+    if (!isLoggedIn || location.pathname === "/") return null;
 
     return (
         <>
