@@ -6,6 +6,7 @@
             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
 
     <changeSet id="seed-data-initial" author="algorhythm-team">
+        <validCheckSum>ANY</validCheckSum>
         <sqlFile path="db/changelog/changesets/seed_data.sql"/>
     </changeSet>
 
