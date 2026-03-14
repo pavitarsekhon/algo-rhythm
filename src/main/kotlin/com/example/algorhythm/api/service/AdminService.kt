@@ -3,16 +3,21 @@ package com.example.algorhythm.api.service
 import com.example.algorhythm.api.domain.Question
 import com.example.algorhythm.api.domain.User
 import com.example.algorhythm.api.domain.UserSession
+import com.example.algorhythm.api.repository.ChatMessageRepository
 import com.example.algorhythm.api.repository.QuestionRepository
+import com.example.algorhythm.api.repository.UserProgressRepository
 import com.example.algorhythm.api.repository.UserRepository
 import com.example.algorhythm.api.repository.UserSessionRepository
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class AdminService(
     private val userRepository: UserRepository,
     private val userSessionRepository: UserSessionRepository,
-    private val questionRepository: QuestionRepository
+    private val questionRepository: QuestionRepository,
+    private val userProgressRepository: UserProgressRepository,
+    private val chatMessageRepository: ChatMessageRepository
 ) {
 
     fun isAdmin(username: String): Boolean {
@@ -58,12 +63,18 @@ class AdminService(
         return getUserById(userId)
     }
 
+    @Transactional
     fun deleteUser(userId: Long): Boolean {
         if (!userRepository.existsById(userId)) return false
         val session = userSessionRepository.findByUserId(userId)
         if (session != null) {
             userSessionRepository.delete(session)
         }
+        val progress = userProgressRepository.findByUserId(userId)
+        if (progress != null) {
+            userProgressRepository.delete(progress)
+        }
+        chatMessageRepository.deleteByUserId(userId)
         userRepository.deleteById(userId)
         return true
     }
@@ -110,4 +121,3 @@ data class AdminStatsDTO(
     val totalCorrect: Int,
     val successRate: Int
 )
-
