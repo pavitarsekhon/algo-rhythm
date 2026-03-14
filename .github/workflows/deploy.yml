@@ -36,8 +36,9 @@ jobs:
           file: ./backend.Dockerfile
           push: true
           tags: ${{ env.ACR_NAME }}/${{ env.BACKEND_IMAGE }}:latest,${{ env.ACR_NAME }}/${{ env.BACKEND_IMAGE }}:${{ github.sha }}
-          cache-from: type=registry,ref=${{ env.ACR_NAME }}/${{ env.BACKEND_IMAGE }}:buildcache
-          cache-to: type=registry,ref=${{ env.ACR_NAME }}/${{ env.BACKEND_IMAGE }}:buildcache,mode=max
+          # Cache disabled to force fresh build and pick up seed_data.sql changes
+          # cache-from: type=registry,ref=${{ env.ACR_NAME }}/${{ env.BACKEND_IMAGE }}:buildcache
+          # cache-to: type=registry,ref=${{ env.ACR_NAME }}/${{ env.BACKEND_IMAGE }}:buildcache,mode=max
 
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
