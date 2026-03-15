@@ -1,6 +1,5 @@
 package com.example.algorhythm.api.service
 
-import com.example.algorhythm.api.enum.QuestionDifficulty
 import com.example.algorhythm.api.repository.UserSessionRepository
 import org.springframework.stereotype.Service
 
@@ -8,22 +7,10 @@ import org.springframework.stereotype.Service
 class UserSessionService(
     private val userSessionRepository: UserSessionRepository
 ) {
-    fun increaseDifficulty(userId: Long) {
-        val user = userSessionRepository.findByUserId(userId)
+    fun incrementTotalAttempts(userId: Long) {
+        val userSession = userSessionRepository.findByUserId(userId)
             ?: error("User session not found")
-        if (user.currentDifficulty == QuestionDifficulty.EASY) {
-            user.currentDifficulty = QuestionDifficulty.MEDIUM
-            userSessionRepository.save(user)
-            return
-        }
-        if (user.currentDifficulty == QuestionDifficulty.MEDIUM) {
-            user.currentDifficulty = QuestionDifficulty.HARD
-            userSessionRepository.save(user)
-            return
-        }
-        if (user.currentDifficulty == QuestionDifficulty.HARD) {
-            user.currentDifficulty = QuestionDifficulty.HARD
-            return
-        }
+        userSession.totalAttempts += 1
+        userSessionRepository.save(userSession)
     }
 }

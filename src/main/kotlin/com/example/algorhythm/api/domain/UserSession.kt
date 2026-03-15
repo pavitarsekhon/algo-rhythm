@@ -24,6 +24,8 @@ data class UserSession(
 
     var correctLastAnswer: Boolean = false,
 
+    var quickSolveStreak: Int = 0,
+
     var totalCorrect: Int = 0,
     var totalAttempts: Int = 0
 )

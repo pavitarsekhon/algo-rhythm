@@ -54,16 +54,21 @@ class QuestionController (
         val userSession = userSessionRepository.findByUserId(currentUser.id)
             ?: error("User session not found. Start a session first.")
         val user = userSession.user
+        val currentDifficulty = userSession.currentDifficulty
         val attemptsForCurrentQuestion = userSession.totalAttempts
         val solvedQuickly = attemptsForCurrentQuestion in 1..2
+        val updatedQuickSolveStreak = if (solvedQuickly) userSession.quickSolveStreak + 1 else 0
 
         val newDifficulty = difficultyEngineService.adjustDifficulty(
-            current = userSession.currentDifficulty,
+            current = currentDifficulty,
             attempts = attemptsForCurrentQuestion,
-            previousFastSolve = userSession.correctLastAnswer
+            quickSolveStreak = updatedQuickSolveStreak
         )
+        val difficultyChanged = newDifficulty != currentDifficulty
 
         userSession.currentDifficulty = newDifficulty
+        // Preserve streak only while staying on the same difficulty.
+        userSession.quickSolveStreak = if (difficultyChanged) 0 else updatedQuickSolveStreak
         userSession.correctLastAnswer = solvedQuickly
         userSession.totalAttempts = 0
         userSessionRepository.save(userSession)
