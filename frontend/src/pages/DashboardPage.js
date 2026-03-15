@@ -318,43 +318,6 @@ function DashboardPage() {
                         )}
                     </div>
                 )}
-
-                {/* Profile Info */}
-                <div className="profile-section">
-                    <h2>Profile Information</h2>
-                    <div className="profile-card">
-                        <div className="profile-grid">
-                            <div className="profile-item">
-                                <span className="profile-label">Username</span>
-                                <span className="profile-value">{profile?.username}</span>
-                            </div>
-                            <div className="profile-item">
-                                <span className="profile-label">Experience Level</span>
-                                <span className="profile-value">{profile?.experienceLevel || "Not set"}</span>
-                            </div>
-                            <div className="profile-item">
-                                <span className="profile-label">Age</span>
-                                <span className="profile-value">{profile?.age || "Not set"}</span>
-                            </div>
-                            <div className="profile-item">
-                                <span className="profile-label">Known Languages</span>
-                                <span className="profile-value">{profile?.knownLanguages || "Not set"}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Quick Start Section */}
-                <div className="quickstart-section">
-                    <h2>Quick Start</h2>
-                    <div className="quickstart-grid">
-                        <div className="quickstart-card" onClick={() => navigate("/question")}>
-                            <div className="quickstart-icon">🎯</div>
-                            <h3>Continue Practice</h3>
-                            <p>Pick up where you left off with AI-powered questions</p>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     );
