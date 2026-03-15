@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { submitCode, runTestCases } from "../api/questionsApi";
+import { useEffect, useState } from "react";
+import { getTopicCheckQuestions, submitCode, runTestCases } from "../api/questionsApi";
+import TopicQuizModal from "./TopicQuizModal";
 
 const Output = ({ editorRef, language, question, onNextQuestion}) => {
     const [submitResult, setSubmitResult] = useState(null);
@@ -8,6 +9,75 @@ const Output = ({ editorRef, language, question, onNextQuestion}) => {
     const [isRunning, setIsRunning] = useState(false);
     const [useCustomTestCases, setUseCustomTestCases] = useState(false);
     const [customTestCases, setCustomTestCases] = useState([{ input: "", expectedOutput: "" }]);
+    const [isTopicQuizOpen, setIsTopicQuizOpen] = useState(false);
+    const [topicQuizQuestions, setTopicQuizQuestions] = useState([]);
+    const [topicQuizAnswers, setTopicQuizAnswers] = useState({});
+    const [isAdvancing, setIsAdvancing] = useState(false);
+    const [isLoadingTopicQuiz, setIsLoadingTopicQuiz] = useState(false);
+    const [topicQuizError, setTopicQuizError] = useState(null);
+
+    useEffect(() => {
+        setSubmitResult(null);
+        setRunResult(null);
+        setUseCustomTestCases(false);
+        setCustomTestCases([{ input: "", expectedOutput: "" }]);
+        setIsTopicQuizOpen(false);
+        setTopicQuizQuestions([]);
+        setTopicQuizAnswers({});
+        setIsAdvancing(false);
+        setIsLoadingTopicQuiz(false);
+        setTopicQuizError(null);
+    }, [question?.id]);
+
+    const handleContinueToNextQuestion = async () => {
+        const allAnswered = topicQuizQuestions.length > 0
+            && topicQuizQuestions.every((_, index) => topicQuizAnswers[index] !== undefined);
+
+        if (!allAnswered) {
+            return;
+        }
+
+        setIsAdvancing(true);
+        setSubmitResult(null);
+        setRunResult(null);
+        setIsTopicQuizOpen(false);
+        try {
+            await Promise.resolve(onNextQuestion?.());
+        } finally {
+            setIsAdvancing(false);
+        }
+    };
+
+    const openTopicQuiz = () => {
+        if (!question?.id) {
+            return;
+        }
+
+        setTopicQuizError(null);
+        setIsLoadingTopicQuiz(true);
+        getTopicCheckQuestions(question.id)
+            .then((res) => {
+                const questions = Array.isArray(res.data) ? res.data : [];
+                if (!questions.length) {
+                    setTopicQuizError("Could not generate topic-check questions. Please try again.");
+                    return;
+                }
+
+                setTopicQuizQuestions(questions);
+                setTopicQuizAnswers({});
+                setIsTopicQuizOpen(true);
+            })
+            .catch(() => {
+                setTopicQuizError("Could not generate topic-check questions. Please try again.");
+            })
+            .finally(() => {
+                setIsLoadingTopicQuiz(false);
+            });
+    };
+
+    const handleTopicAnswer = (index, value) => {
+        setTopicQuizAnswers((prev) => ({ ...prev, [index]: value }));
+    };
 
     const submitSourceCode = async () => {
         const sourceCode = editorRef.current.getValue();
@@ -121,31 +191,42 @@ const Output = ({ editorRef, language, question, onNextQuestion}) => {
                 {/* NEXT BUTTON (only visible when passed) */}
                 {submitResult?.allPassed && (
                     <button
-                        onClick={onNextQuestion}
+                        onClick={openTopicQuiz}
+                        disabled={isAdvancing || isLoadingTopicQuiz}
                         style={{
                             padding: "10px 24px",
                             fontSize: "14px",
                             fontWeight: "600",
                             color: "white",
-                            background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                            background: isAdvancing || isLoadingTopicQuiz
+                                ? "#9ca3af"
+                                : "linear-gradient(135deg, #10b981 0%, #059669 100%)",
                             border: "none",
                             borderRadius: "8px",
-                            cursor: "pointer",
+                            cursor: isAdvancing || isLoadingTopicQuiz ? "not-allowed" : "pointer",
                             transition: "all 0.3s"
                         }}
                         onMouseOver={(e) => {
-                            e.target.style.transform = "translateY(-2px)";
-                            e.target.style.boxShadow = "0 4px 12px rgba(16, 185, 129, 0.4)";
+                            if (!isAdvancing && !isLoadingTopicQuiz) {
+                                e.target.style.transform = "translateY(-2px)";
+                                e.target.style.boxShadow = "0 4px 12px rgba(16, 185, 129, 0.4)";
+                            }
                         }}
                         onMouseOut={(e) => {
                             e.target.style.transform = "translateY(0)";
                             e.target.style.boxShadow = "none";
                         }}
                     >
-                        Next →
+                        {isAdvancing || isLoadingTopicQuiz ? "Loading..." : "Next ->"}
                     </button>
                 )}
             </div>
+
+            {topicQuizError && (
+                <div style={{ color: "#dc2626", marginBottom: "12px", fontWeight: "600" }}>
+                    {topicQuizError}
+                </div>
+            )}
 
             <div style={{ marginBottom: "16px" }}>
                 <label style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: "600", color: "#1e293b", cursor: "pointer", marginBottom: "8px" }}>
@@ -353,6 +434,17 @@ const Output = ({ editorRef, language, question, onNextQuestion}) => {
                     </div>
                 )}
             </div>
+
+            <TopicQuizModal
+                isOpen={isTopicQuizOpen}
+                topic={question?.topics?.split("|")[0]?.trim()}
+                questions={topicQuizQuestions}
+                answers={topicQuizAnswers}
+                onAnswer={handleTopicAnswer}
+                onContinue={handleContinueToNextQuestion}
+                onClose={() => setIsTopicQuizOpen(false)}
+                isContinuing={isAdvancing}
+            />
         </div>
     );
 };

@@ -22,7 +22,8 @@ class QuestionController (
     private val questionRepository: QuestionRepository,
     private val questionService: QuestionService,
     private val difficultyEngineService: DifficultyEngineService,
-    private val userProgressService: UserProgressService
+    private val userProgressService: UserProgressService,
+    private val topicQuizService: TopicQuizService
 ) {
 
     /**
@@ -53,20 +54,23 @@ class QuestionController (
         val userSession = userSessionRepository.findByUserId(currentUser.id)
             ?: error("User session not found. Start a session first.")
         val user = userSession.user
+        val attemptsForCurrentQuestion = userSession.totalAttempts
+        val solvedQuickly = attemptsForCurrentQuestion in 1..2
 
         val newDifficulty = difficultyEngineService.adjustDifficulty(
             current = userSession.currentDifficulty,
-            attempts = userSession.totalAttempts,
-            lastCorrect = userSession.correctLastAnswer
+            attempts = attemptsForCurrentQuestion,
+            previousFastSolve = userSession.correctLastAnswer
         )
 
         userSession.currentDifficulty = newDifficulty
+        userSession.correctLastAnswer = solvedQuickly
+        userSession.totalAttempts = 0
         userSessionRepository.save(userSession)
 
         val question = questionService.generateQuestion(newDifficulty, user.experienceLevel ?: "beginner")
         userSession.currentQuestionId = question.id
         userSession.totalAttempts = 0
-        userSession.correctLastAnswer = false
         userSessionRepository.save(userSession)
         return question
     }
@@ -100,6 +104,21 @@ class QuestionController (
     @PostMapping("/run")
     fun runCode(@RequestBody request: RunCodeRequest): Judge0ResultResponse = judge0Service.runCode(request.code, request.language, request.input)
 
+    @PostMapping("/topic-check")
+    fun generateTopicCheck(@RequestBody request: TopicCheckRequest): List<TopicCheckQuestionResponse> {
+        getCurrentUser() // require authenticated user
+        val question = questionRepository.findById(request.questionId)
+            .orElseThrow { IllegalArgumentException("Question not found") }
+
+        return topicQuizService.generateTopicCheck(question, count = 5).map {
+            TopicCheckQuestionResponse(
+                id = it.id,
+                statement = it.statement,
+                isTrue = it.isTrue
+            )
+        }
+    }
+
     data class CodeSubmissionRequest(
         val code: String,
         val language: String,
@@ -117,6 +136,16 @@ class QuestionController (
         val code: String,
         val language: String,
         val input: String? = null
+    )
+
+    data class TopicCheckRequest(
+        val questionId: Long
+    )
+
+    data class TopicCheckQuestionResponse(
+        val id: String,
+        val statement: String,
+        val isTrue: Boolean
     )
 
     private fun getCurrentUser() =
