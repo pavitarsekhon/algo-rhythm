@@ -1,7 +1,7 @@
 /* DashboardPage.css - Modern LeetCode-style Dashboard */
 
 .dashboard-container {
-    min-height: calc(100vh - 70px);
+    min-height: 100dvh;
     background: #f8fafc;
     padding: 40px 20px;
 }

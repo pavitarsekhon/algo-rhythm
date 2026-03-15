@@ -2,7 +2,7 @@
 
 .question-page-container {
     display: flex;
-    height: calc(100vh - 70px);
+    height: 100dvh;
     background: #f8fafc;
 }
 
