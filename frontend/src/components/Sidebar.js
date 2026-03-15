@@ -101,19 +101,6 @@ function Sidebar({ isLoggedIn, isAdmin, onLogout }) {
                             </a>
                         )}
                     </div>
-
-                    <div className="nav-section">
-                        <div className="nav-section-label">Quick Links</div>
-
-                        <a
-                            href="/question"
-                            className="nav-item"
-                            onClick={(e) => { e.preventDefault(); navigate('/question'); }}
-                        >
-                            <span className="nav-icon">⚡</span>
-                            <span className="nav-label">Quick Practice</span>
-                        </a>
-                    </div>
                 </nav>
 
                 {/* Sidebar Footer */}

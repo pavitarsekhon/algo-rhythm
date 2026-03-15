@@ -8,6 +8,7 @@
     <include file="db/changelog/changesets/create_tables.xml"/>
     <include file="db/changelog/changesets/add_is_admin.xml"/>
     <include file="db/changelog/changesets/create_user_progress.xml"/>
+    <include file="db/changelog/changesets/add_quick_solve_streak.xml"/>
     <include file="db/changelog/changesets/seed_data.xml"/>
     <include file="db/changelog/changesets/seed_questions.xml"/>
 

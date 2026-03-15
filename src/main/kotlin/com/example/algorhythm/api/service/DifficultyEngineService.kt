@@ -6,11 +6,17 @@ import org.springframework.stereotype.Service
 @Service
 class DifficultyEngineService {
 
-    fun adjustDifficulty(current: QuestionDifficulty, attempts: Int, lastCorrect: Boolean): QuestionDifficulty {
+    fun adjustDifficulty(
+        current: QuestionDifficulty,
+        attempts: Int,
+        quickSolveStreak: Int
+    ): QuestionDifficulty {
+        val struggled = attempts > 5
 
         return when {
-            lastCorrect && attempts == 1 -> increase(current)
-            !lastCorrect && attempts > 2 -> decrease(current)
+            struggled -> decrease(current)
+            // Promote only after two consecutive quick solves at the same level.
+            quickSolveStreak >= 2 -> increase(current)
             else -> current
         }
     }
