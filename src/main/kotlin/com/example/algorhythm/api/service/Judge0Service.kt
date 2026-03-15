@@ -1,10 +1,8 @@
 package com.example.algorhythm.api.service
 
-import com.example.algorhythm.api.enum.ExecutionType
 import com.example.algorhythm.api.repository.IOPairRepository
 import com.example.algorhythm.api.repository.QuestionRepository
 import com.example.algorhythm.api.controller.QuestionController.CodeSubmissionRequest
-import com.example.algorhythm.api.domain.IOPair
 import com.example.algorhythm.api.repository.UserSessionRepository
 import com.example.algorhythm.consts.SUPPORTED_LANGUAGES
 import com.example.algorhythm.util.IndentationUtil
@@ -16,8 +14,8 @@ class Judge0Service(
     private val webClient: WebClient,
     private val questionRepository: QuestionRepository,
     private val ioPairRepository: IOPairRepository,
-    private val userSessionService: UserSessionService,
-    private val userSessionRepository: UserSessionRepository
+    private val userSessionRepository: UserSessionRepository,
+    private val userSessionService: UserSessionService
 ) {
     fun runCode(code: String, language: String, input: String? = null): Judge0ResultResponse {
          val normalizedCode = when (language.lowercase()) {
@@ -63,7 +61,8 @@ class Judge0Service(
 
     fun submitCode(request: CodeSubmissionRequest, userId: Long): SubmitResultResponse {
         // For submit, use ALL test cases (including hidden ones)
-        val ioPairs = ioPairRepository.findByQuestionIdAndHidden(request.questionId, true).take(5)
+        userSessionService.incrementTotalAttempts(userId)
+        val ioPairs = ioPairRepository.findByQuestionIdAndHidden(request.questionId, false ).take(5) // ISSUE HERE
         val testCases = ioPairs.map { RunnableTestCase(it.inputText, it.expectedOutput) }
         return runTests(testCases, request)
     }
@@ -84,7 +83,6 @@ class Judge0Service(
             return runTests(testCases, request)
         }
 
-        // Only get non-hidden test cases
         val ioPairs = ioPairRepository.findByQuestionIdAndHidden(request.questionId, false).take(3)
         val testCases = ioPairs.map { RunnableTestCase(it.inputText, it.expectedOutput) }
         return runTests(testCases, request)
