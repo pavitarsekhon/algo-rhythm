@@ -5,12 +5,13 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
 
-    <changeSet id="seed-data-initial" author="algorhythm-team">
-        <validCheckSum>ANY</validCheckSum>
-        <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM question</sqlCheck>
-        </preConditions>
-        <sqlFile path="db/changelog/changesets/seed_data.sql"/>
+    <changeSet id="add-quick-solve-streak-to-user-session" author="algorhythm">
+        <addColumn tableName="user_session">
+            <column name="quick_solve_streak" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
     </changeSet>
 
 </databaseChangeLog>
+
