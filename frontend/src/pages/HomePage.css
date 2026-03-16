@@ -215,6 +215,23 @@
     background: #ffffff;
 }
 
+.form-multi-select {
+    min-height: 120px;
+    cursor: pointer;
+    background-image: none;
+    padding: 10px 12px;
+}
+
+.form-multi-select option {
+    padding: 8px;
+}
+
+.input-hint {
+    margin: -14px 0 20px;
+    color: #6b7280;
+    font-size: 12px;
+}
+
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;

@@ -2,6 +2,15 @@ import { useState } from "react";
 import API from "../api/axiosConfig";
 import "./HomePage.css";
 
+const LANGUAGE_OPTIONS = [
+    { value: "python", label: "Python" },
+    { value: "javascript", label: "JavaScript" },
+    { value: "typescript", label: "TypeScript" },
+    { value: "java", label: "Java" },
+    { value: "csharp", label: "C#" },
+    { value: "php", label: "PHP" }
+];
+
 function HomePage() {
     const [mode, setMode] = useState("initial"); // "initial", "login", "register"
     const [error, setError] = useState("");
@@ -16,11 +25,16 @@ function HomePage() {
         password: "",
         age: "",
         experienceLevel: "",
-        knownLanguages: ""
+        knownLanguages: []
     });
 
     const handleRegisterChange = (e) => {
-        setRegisterForm({ ...registerForm, [e.target.name]: e.target.value });
+        const { name, value, selectedOptions } = e.target;
+        const fieldValue = name === "knownLanguages"
+            ? Array.from(selectedOptions, (option) => option.value)
+            : value;
+
+        setRegisterForm({ ...registerForm, [name]: fieldValue });
     };
 
     const handleLogin = async (e) => {
@@ -49,7 +63,7 @@ function HomePage() {
                 password: registerForm.password,
                 age: registerForm.age ? parseInt(registerForm.age) : null,
                 experienceLevel: registerForm.experienceLevel,
-                knownLanguages: registerForm.knownLanguages
+                knownLanguages: registerForm.knownLanguages.join(",")
             });
 
             // Auto login after registration
@@ -184,14 +198,20 @@ function HomePage() {
                         </div>
 
                         <label className="form-label">Known Languages</label>
-                        <input
-                            type="text"
+                        <select
                             name="knownLanguages"
                             value={registerForm.knownLanguages}
                             onChange={handleRegisterChange}
-                            placeholder="e.g. Python, JavaScript"
-                            className="form-input"
-                        />
+                            className="form-input form-multi-select"
+                            multiple
+                        >
+                            {LANGUAGE_OPTIONS.map((language) => (
+                                <option key={language.value} value={language.value}>
+                                    {language.label}
+                                </option>
+                            ))}
+                        </select>
+                        <p className="input-hint">Use Cmd/Ctrl + click to select multiple languages.</p>
 
                         {error && mode === "register" && (
                             <div className="error-message">{error}</div>
