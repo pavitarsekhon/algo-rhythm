@@ -1,19 +1,21 @@
 import API from "./axiosConfig";
 
-export const runSourceCode = (language, sourceCode) =>
-    API.post("/questions/run", { language, code: sourceCode });
+const PYTHON_LANGUAGE = "python";
 
-export const runTestCases = (language, code, question, customTestCases = null) =>
+export const runSourceCode = (sourceCode) =>
+    API.post("/questions/run", { language: PYTHON_LANGUAGE, code: sourceCode });
+
+export const runTestCases = (code, question, customTestCases = null) =>
     API.post("/questions/run-tests", {
-        language,
+        language: PYTHON_LANGUAGE,
         code,
         questionId: question.id,
         customTestCases,
     });
 
-export const submitCode = (language, code, question) =>
+export const submitCode = (code, question) =>
     API.post("/questions/submit", {
-        language,
+        language: PYTHON_LANGUAGE,
         code,
         questionId: question.id,
     });

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getTopicCheckQuestions, submitCode, runTestCases } from "../api/questionsApi";
 import TopicQuizModal from "./TopicQuizModal";
 
-const Output = ({ editorRef, language, question, onNextQuestion}) => {
+const Output = ({ editorRef, question, onNextQuestion}) => {
     const [submitResult, setSubmitResult] = useState(null);
     const [runResult, setRunResult] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -86,7 +86,7 @@ const Output = ({ editorRef, language, question, onNextQuestion}) => {
         setIsLoading(true);
         setRunResult(null);
         try {
-            const result = await submitCode(language, sourceCode, question);
+            const result = await submitCode(sourceCode, question);
             setSubmitResult(result.data);
         } catch (error) {
             setSubmitResult({ error: "Submission failed" });
@@ -111,7 +111,7 @@ const Output = ({ editorRef, language, question, onNextQuestion}) => {
                         expectedOutput: tc.expectedOutput || ""
                     }));
             }
-            const result = await runTestCases(language, sourceCode, question, testCasesToSend);
+            const result = await runTestCases(sourceCode, question, testCasesToSend);
             setRunResult(result.data);
         } catch (error) {
             setRunResult({ error: "Run failed" });
