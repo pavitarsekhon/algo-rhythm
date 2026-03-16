@@ -6,7 +6,9 @@ function ChatBox({ editorRef }) {
     const [message, setMessage] = useState("");
     const [chat, setChat] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isLogoAvailable, setIsLogoAvailable] = useState(true);
     const messagesEndRef = useRef(null);
+    const chatbotLogoSrc = "/chatbot-logo.jpg";
 
     useEffect(() => {
         if (messagesEndRef.current) {
@@ -67,9 +69,19 @@ function ChatBox({ editorRef }) {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
+                        overflow: "hidden",
                         fontSize: "24px"
                     }}>
-                        🤖
+                        {isLogoAvailable ? (
+                            <img
+                                src={chatbotLogoSrc}
+                                alt="AlgoBot logo"
+                                onError={() => setIsLogoAvailable(false)}
+                                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            />
+                        ) : (
+                            "🤖"
+                        )}
                     </div>
                     <div>
                         <div style={{
