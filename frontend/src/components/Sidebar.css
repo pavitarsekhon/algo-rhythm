@@ -1,4 +1,4 @@
-/* Sidebar.css - Notion-style collapsible sidebar */
+/* Sidebar.css - dark programmer-style collapsible sidebar */
 
 /* Hover trigger area */
 .sidebar-trigger {
@@ -21,14 +21,14 @@
     align-items: center;
     justify-content: center;
     border-radius: 6px;
-    color: #91929e;
+    color: #94a3b8;
     cursor: pointer;
     transition: all 0.15s ease;
 }
 
 .trigger-icon:hover {
-    background: rgba(0, 0, 0, 0.04);
-    color: #37352f;
+    background: rgba(148, 163, 184, 0.12);
+    color: #e2e8f0;
 }
 
 /* Sidebar container */
@@ -38,8 +38,8 @@
     top: 0;
     width: 260px;
     height: 100vh;
-    background: #fbfbfa;
-    border-right: 1px solid rgba(0, 0, 0, 0.06);
+    background: rgba(2, 6, 23, 0.96);
+    border-right: 1px solid rgba(148, 163, 184, 0.22);
     z-index: 1002;
     display: flex;
     flex-direction: column;
@@ -50,7 +50,7 @@
 
 .sidebar.expanded {
     transform: translateX(0);
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 40px rgba(2, 6, 23, 0.65);
 }
 
 /* Sidebar Header */
@@ -59,7 +59,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 12px 12px 12px 14px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
 }
 
 .sidebar-logo {
@@ -73,7 +73,7 @@
 }
 
 .sidebar-logo:hover {
-    background: rgba(0, 0, 0, 0.04);
+    background: rgba(148, 163, 184, 0.1);
 }
 
 .logo-icon {
@@ -83,11 +83,7 @@
 .logo-text {
     font-size: 15px;
     font-weight: 600;
-    color: #37352f;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #67e8f9;
 }
 
 .pin-button {
@@ -99,19 +95,19 @@
     border: none;
     background: transparent;
     border-radius: 6px;
-    color: #91929e;
+    color: #94a3b8;
     cursor: pointer;
     transition: all 0.15s ease;
 }
 
 .pin-button:hover {
-    background: rgba(0, 0, 0, 0.04);
-    color: #37352f;
+    background: rgba(148, 163, 184, 0.12);
+    color: #e2e8f0;
 }
 
 .pin-button.pinned {
-    color: #667eea;
-    background: rgba(102, 126, 234, 0.1);
+    color: #22d3ee;
+    background: rgba(34, 211, 238, 0.18);
 }
 
 /* Navigation */
@@ -128,7 +124,7 @@
 .nav-section-label {
     font-size: 11px;
     font-weight: 500;
-    color: #91929e;
+    color: #94a3b8;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     padding: 8px 8px 4px;
@@ -145,7 +141,7 @@
     gap: 10px;
     padding: 8px 10px;
     border-radius: 6px;
-    color: #37352f;
+    color: #cbd5e1;
     text-decoration: none;
     font-size: 14px;
     font-weight: 500;
@@ -155,16 +151,16 @@
 }
 
 .nav-item:hover {
-    background: rgba(0, 0, 0, 0.04);
+    background: rgba(148, 163, 184, 0.12);
 }
 
 .nav-item.active {
-    background: rgba(102, 126, 234, 0.1);
-    color: #667eea;
+    background: rgba(34, 211, 238, 0.18);
+    color: #67e8f9;
 }
 
 .nav-item.active .nav-icon {
-    color: #667eea;
+    color: #67e8f9;
 }
 
 .nav-icon {
@@ -173,12 +169,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #91929e;
+    color: #94a3b8;
     flex-shrink: 0;
 }
 
 .nav-item:hover .nav-icon {
-    color: #37352f;
+    color: #e2e8f0;
 }
 
 .nav-label {
@@ -190,7 +186,7 @@
 /* Sidebar Footer */
 .sidebar-footer {
     padding: 8px;
-    border-top: 1px solid rgba(0, 0, 0, 0.04);
+    border-top: 1px solid rgba(148, 163, 184, 0.2);
 }
 
 .logout-button {
@@ -202,7 +198,7 @@
     border: none;
     border-radius: 6px;
     background: transparent;
-    color: #37352f;
+    color: #cbd5e1;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
@@ -210,8 +206,8 @@
 }
 
 .logout-button:hover {
-    background: rgba(235, 87, 87, 0.1);
-    color: #eb5757;
+    background: rgba(248, 113, 113, 0.16);
+    color: #fca5a5;
 }
 
 .logout-button:hover .nav-icon {
@@ -228,8 +224,8 @@
     .sidebar-trigger {
         width: 100%;
         height: 56px;
-        background: white;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        background: rgba(2, 6, 23, 0.96);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.22);
         padding: 12px 16px;
         align-items: center;
     }
@@ -263,11 +259,11 @@
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(148, 163, 184, 0.28);
     border-radius: 3px;
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(148, 163, 184, 0.42);
 }
 
