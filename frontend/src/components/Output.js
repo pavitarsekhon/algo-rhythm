@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Checkbox } from "@chakra-ui/react";
 import { getTopicCheckQuestions, submitCode, runTestCases } from "../api/questionsApi";
 import TopicQuizModal from "./TopicQuizModal";
 
@@ -138,7 +139,7 @@ const Output = ({ editorRef, question, onNextQuestion}) => {
                         color: "white",
                         background: isRunning
                             ? "#9ca3af"
-                            : "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
+                            : "#0ea5e9",
                         border: "none",
                         borderRadius: "8px",
                         cursor: isRunning || isLoading ? "not-allowed" : "pointer",
@@ -147,7 +148,7 @@ const Output = ({ editorRef, question, onNextQuestion}) => {
                     onMouseOver={(e) => {
                         if (!isRunning && !isLoading) {
                             e.target.style.transform = "translateY(-2px)";
-                            e.target.style.boxShadow = "0 4px 12px rgba(59, 130, 246, 0.4)";
+                                e.target.style.boxShadow = "0 4px 12px rgba(14, 165, 233, 0.35)";
                         }
                     }}
                     onMouseOut={(e) => {
@@ -168,7 +169,7 @@ const Output = ({ editorRef, question, onNextQuestion}) => {
                         color: "white",
                         background: isLoading
                             ? "#9ca3af"
-                            : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                            : "#0891b2",
                         border: "none",
                         borderRadius: "8px",
                         cursor: isLoading || isRunning ? "not-allowed" : "pointer",
@@ -177,7 +178,7 @@ const Output = ({ editorRef, question, onNextQuestion}) => {
                     onMouseOver={(e) => {
                         if (!isLoading && !isRunning) {
                             e.target.style.transform = "translateY(-2px)";
-                            e.target.style.boxShadow = "0 4px 12px rgba(102, 126, 234, 0.4)";
+                                e.target.style.boxShadow = "0 4px 12px rgba(8, 145, 178, 0.35)";
                         }
                     }}
                     onMouseOut={(e) => {
@@ -200,7 +201,7 @@ const Output = ({ editorRef, question, onNextQuestion}) => {
                             color: "white",
                             background: isAdvancing || isLoadingTopicQuiz
                                 ? "#9ca3af"
-                                : "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                                : "#059669",
                             border: "none",
                             borderRadius: "8px",
                             cursor: isAdvancing || isLoadingTopicQuiz ? "not-allowed" : "pointer",
@@ -229,15 +230,19 @@ const Output = ({ editorRef, question, onNextQuestion}) => {
             )}
 
             <div style={{ marginBottom: "16px" }}>
-                <label style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: "600", color: "#1e293b", cursor: "pointer", marginBottom: "8px" }}>
-                    <input
-                        type="checkbox"
-                        checked={useCustomTestCases}
-                        onChange={(e) => setUseCustomTestCases(e.target.checked)}
-                        style={{ width: "16px", height: "16px" }}
-                    />
+                <Checkbox
+                    isChecked={useCustomTestCases}
+                    onChange={(e) => setUseCustomTestCases(e.target.checked)}
+                    colorScheme="cyan"
+                    size="lg"
+                    color="#f8fafc"
+                    fontWeight="700"
+                    fontSize="15px"
+                    fontFamily="'JetBrains Mono', monospace"
+                    mb="8px"
+                >
                     Use Custom Test Cases
-                </label>
+                </Checkbox>
 
                 {useCustomTestCases && (
                     <div style={{ background: "#1e293b", padding: "16px", borderRadius: "8px", border: "1px solid #334155" }}>

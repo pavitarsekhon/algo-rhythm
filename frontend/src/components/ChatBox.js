@@ -1,6 +1,22 @@
 import { useState, useEffect, useRef } from "react";
+import {
+    Avatar,
+    Box,
+    Button,
+    Flex,
+    HStack,
+    Input,
+    Text,
+    VStack,
+    keyframes,
+} from "@chakra-ui/react";
 import { sendChatMessage } from "../api/chatApi";
 import FormattedMessage from "./FormattedMessage";
+
+const dotPulse = keyframes`
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+`;
 
 function ChatBox({ editorRef }) {
     const [message, setMessage] = useState("");
@@ -49,220 +65,133 @@ function ChatBox({ editorRef }) {
 
 
     return (
-        <div style={{
-            display: "flex",
-            flexDirection: "column",
-            height: "100%",
-            background: "white"
-        }}>
-            {/* Header */}
-            <div style={{
-                padding: "24px",
-                borderBottom: "1px solid #e5e7eb"
-            }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    <div style={{
-                        width: "48px",
-                        height: "48px",
-                        borderRadius: "12px",
-                        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        overflow: "hidden",
-                        fontSize: "24px"
-                    }}>
-                        {isLogoAvailable ? (
-                            <img
-                                src={chatbotLogoSrc}
-                                alt="AlgoBot logo"
-                                onError={() => setIsLogoAvailable(false)}
-                                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                            />
-                        ) : (
-                            "🤖"
-                        )}
-                    </div>
-                    <div>
-                        <div style={{
-                            fontSize: "18px",
-                            fontWeight: "700",
-                            color: "#1a1a1a"
-                        }}>
-                            AlgoBot
-                        </div>
-                        <div style={{
-                            fontSize: "13px",
-                            color: "#6b7280"
-                        }}>
-                            Your AI Coding Assistant
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <Flex direction="column" h="100%" bg="rgba(2, 6, 23, 0.82)">
+            <Box p={6} borderBottomWidth="1px" borderColor="whiteAlpha.200">
+                <HStack spacing={3} align="center">
+                    {isLogoAvailable ? (
+                        <Avatar
+                            src={chatbotLogoSrc}
+                            name="AlgoBot"
+                            borderRadius="12px"
+                            bg="purple.500"
+                            size="md"
+                            onError={() => setIsLogoAvailable(false)}
+                        />
+                    ) : (
+                        <Box
+                            w="48px"
+                            h="48px"
+                            borderRadius="12px"
+                            bg="cyan.700"
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                            fontSize="24px"
+                        >
+                            <Text>🤖</Text>
+                        </Box>
+                    )}
+                    <Box>
+                        <Text fontSize="lg" fontWeight="700" color="gray.100">AlgoBot</Text>
+                        <Text fontSize="sm" color="gray.400">Your AI Coding Assistant</Text>
+                    </Box>
+                </HStack>
+            </Box>
 
-            {/* Messages Area */}
-            <div style={{
-                flex: 1,
-                overflowY: "auto",
-                padding: "20px"
-            }}>
+            <Box flex="1" overflowY="auto" p={5}>
                 {chat.length === 0 ? (
-                    <div style={{
-                        textAlign: "center",
-                        padding: "60px 20px",
-                        color: "#9ca3af"
-                    }}>
-                        <div style={{ fontSize: "48px", marginBottom: "16px" }}>💡</div>
-                        <p style={{ fontSize: "14px", lineHeight: "1.6" }}>
+                    <Box textAlign="center" py={16} px={5} color="gray.500">
+                        <Text fontSize="48px" mb={4}>💡</Text>
+                        <Text fontSize="sm" lineHeight="1.6">
                             Need help? Ask me for hints, explanations, or coding tips!
-                        </p>
-                    </div>
+                        </Text>
+                    </Box>
                 ) : (
-                    <div>
+                    <VStack align="stretch" spacing={6}>
                         {chat.map((msg, i) => (
-                            <div key={i} style={{ marginBottom: "24px" }}>
-                                {/* User Message */}
-                                <div style={{
-                                    display: "flex",
-                                    justifyContent: "flex-end",
-                                    marginBottom: "12px"
-                                }}>
-                                    <div style={{
-                                        maxWidth: "80%",
-                                        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                        color: "white",
-                                        padding: "12px 16px",
-                                        borderRadius: "16px",
-                                        borderBottomRightRadius: "4px",
-                                        fontSize: "14px",
-                                        lineHeight: "1.5"
-                                    }}>
+                            <Box key={i}>
+                                <Flex justify="flex-end" mb={3}>
+                                    <Box
+                                        maxW="80%"
+                                        bg="cyan.700"
+                                        color="white"
+                                        px={4}
+                                        py={3}
+                                        borderRadius="16px"
+                                        borderBottomRightRadius="4px"
+                                        fontSize="sm"
+                                        lineHeight="1.5"
+                                    >
                                         {msg.user}
-                                    </div>
-                                </div>
+                                    </Box>
+                                </Flex>
 
-                                {/* Bot Message */}
                                 {msg.bot ? (
-                                    <div style={{ display: "flex" }}>
-                                        <div style={{
-                                            maxWidth: "80%",
-                                            background: "#f9fafb",
-                                            color: "#1f2937",
-                                            padding: "16px",
-                                            borderRadius: "16px",
-                                            borderBottomLeftRadius: "4px",
-                                            fontSize: "14px",
-                                            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-                                            border: "1px solid #e5e7eb"
-                                        }}>
+                                    <Flex>
+                                        <Box
+                                            maxW="80%"
+                                            bg="whiteAlpha.100"
+                                            color="gray.100"
+                                            p={4}
+                                            borderRadius="16px"
+                                            borderBottomLeftRadius="4px"
+                                            fontSize="sm"
+                                            boxShadow="sm"
+                                            borderWidth="1px"
+                                            borderColor="whiteAlpha.200"
+                                        >
                                             <FormattedMessage content={msg.bot} />
-                                        </div>
-                                    </div>
+                                        </Box>
+                                    </Flex>
                                 ) : (
-                                    <div style={{ display: "flex" }}>
-                                        <div style={{
-                                            background: "#f3f4f6",
-                                            padding: "12px 16px",
-                                            borderRadius: "16px",
-                                            display: "flex",
-                                            gap: "4px"
-                                        }}>
-                                            <span style={{
-                                                animation: "pulse 1.4s infinite",
-                                                color: "#9ca3af"
-                                            }}>●</span>
-                                            <span style={{
-                                                animation: "pulse 1.4s infinite 0.2s",
-                                                color: "#9ca3af"
-                                            }}>●</span>
-                                            <span style={{
-                                                animation: "pulse 1.4s infinite 0.4s",
-                                                color: "#9ca3af"
-                                            }}>●</span>
-                                        </div>
-                                    </div>
+                                    <Flex>
+                                        <HStack bg="whiteAlpha.100" px={4} py={3} borderRadius="16px" spacing={1}>
+                                            <Text animation={`${dotPulse} 1.4s infinite`} color="gray.500">●</Text>
+                                            <Text animation={`${dotPulse} 1.4s infinite 0.2s`} color="gray.500">●</Text>
+                                            <Text animation={`${dotPulse} 1.4s infinite 0.4s`} color="gray.500">●</Text>
+                                        </HStack>
+                                    </Flex>
                                 )}
-                            </div>
+                            </Box>
                         ))}
                         <div ref={messagesEndRef} />
-                    </div>
+                    </VStack>
                 )}
-            </div>
+            </Box>
 
-            {/* Input Area */}
-            <div style={{
-                padding: "20px",
-                borderTop: "1px solid #e5e7eb"
-            }}>
-                <div style={{ display: "flex", gap: "12px" }}>
-                    <input
+            <Box p={5} borderTopWidth="1px" borderColor="whiteAlpha.200">
+                <HStack spacing={3}>
+                    <Input
                         type="text"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
                         placeholder="Ask for a hint or explanation..."
                         disabled={isLoading}
-                        style={{
-                            flex: 1,
-                            padding: "12px 16px",
-                            fontSize: "14px",
-                            border: "2px solid #e5e7eb",
-                            borderRadius: "10px",
-                            outline: "none",
-                            transition: "all 0.3s"
-                        }}
-                        onFocus={(e) => e.target.style.borderColor = "#667eea"}
-                        onBlur={(e) => e.target.style.borderColor = "#e5e7eb"}
+                        size="md"
+                        borderWidth="2px"
+                        bg="whiteAlpha.100"
+                        color="gray.100"
+                        borderColor="whiteAlpha.300"
+                        _placeholder={{ color: "gray.500" }}
+                        _focus={{ borderColor: "cyan.300", boxShadow: "0 0 0 1px #67e8f9" }}
                     />
-                    <button
+                    <Button
                         onClick={handleSend}
                         disabled={isLoading}
-                        style={{
-                            padding: "12px 24px",
-                            fontSize: "14px",
-                            fontWeight: "600",
-                            color: "white",
-                            background: isLoading
-                                ? "#9ca3af"
-                                : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                            border: "none",
-                            borderRadius: "10px",
-                            cursor: isLoading ? "not-allowed" : "pointer",
-                            transition: "all 0.3s"
-                        }}
-                        onMouseOver={(e) => {
-                            if (!isLoading) {
-                                e.target.style.transform = "translateY(-2px)";
-                                e.target.style.boxShadow = "0 4px 12px rgba(102, 126, 234, 0.4)";
-                            }
-                        }}
-                        onMouseOut={(e) => {
-                            e.target.style.transform = "translateY(0)";
-                            e.target.style.boxShadow = "none";
-                        }}
+                        color="white"
+                        bg={isLoading ? "gray.400" : "cyan.600"}
+                        _hover={isLoading ? {} : { transform: "translateY(-2px)", bg: "cyan.500", boxShadow: "0 4px 12px rgba(8, 145, 178, 0.35)" }}
+                        _active={{ transform: "translateY(0)" }}
                     >
                         {isLoading ? "..." : "Send"}
-                    </button>
-                </div>
-                <p style={{
-                    fontSize: "12px",
-                    color: "#9ca3af",
-                    marginTop: "8px",
-                    marginBottom: 0,
-                    textAlign: "center"
-                }}>
+                    </Button>
+                </HStack>
+                <Text fontSize="xs" color="gray.500" mt={2} mb={0} textAlign="center">
                     Press Enter to send
-                </p>
-            </div>
-
-            <style>{`
-                @keyframes pulse {
-                    0%, 100% { opacity: 0.4; }
-                    50% { opacity: 1; }
-                }
-            `}</style>
-        </div>
+                </Text>
+            </Box>
+        </Flex>
     );
 }
 
