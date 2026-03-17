@@ -5,7 +5,7 @@ import React from 'react';
  * Handles examples, constraints, input/output formatting
  */
 function FormattedQuestion({ content }) {
-    if (!content) return <div>Loading question...</div>;
+    if (!content) return <div style={{ color: '#94a3b8' }}>Loading question...</div>;
 
     const parseQuestion = (text) => {
         const elements = [];
@@ -30,7 +30,7 @@ function FormattedQuestion({ content }) {
                                     style={{
                                         fontSize: '15px',
                                         fontWeight: '700',
-                                        color: '#667eea',
+                                        color: '#7dd3fc',
                                         marginTop: idx > 0 ? '16px' : '0',
                                         marginBottom: '8px'
                                     }}
@@ -52,18 +52,19 @@ function FormattedQuestion({ content }) {
                                         gap: '8px',
                                         marginBottom: '6px',
                                         fontSize: '14px',
-                                        lineHeight: '1.6'
+                                        lineHeight: '1.6',
+                                        color: '#cbd5e1'
                                     }}
                                 >
-                                    <span style={{ fontWeight: '600', color: '#374151', minWidth: '90px' }}>
+                                    <span style={{ fontWeight: '600', color: '#e2e8f0', minWidth: '90px' }}>
                                         {label}:
                                     </span>
                                     <code style={{
-                                        background: '#f3f4f6',
+                                        background: 'rgba(148, 163, 184, 0.16)',
                                         padding: '2px 8px',
                                         borderRadius: '4px',
                                         fontSize: '13px',
-                                        color: '#1f2937',
+                                        color: '#e2e8f0',
                                         fontFamily: "'Monaco', 'Menlo', 'Ubuntu Mono', monospace",
                                         flex: 1
                                     }}>
@@ -76,7 +77,7 @@ function FormattedQuestion({ content }) {
                         // Detect constraint lines (format: "1 <= n <= 100" or "• constraint")
                         const constraintMatch = line.match(/^[\s]*([•\-*]|\d+\.?)\s*(.+)$/);
                         if (constraintMatch && currentSection === 'constraints') {
-                            const [, bullet, text] = constraintMatch;
+                            const [, , text] = constraintMatch;
                             return (
                                 <div
                                     key={`constraint-${idx}`}
@@ -86,24 +87,25 @@ function FormattedQuestion({ content }) {
                                         marginBottom: '6px',
                                         fontSize: '14px',
                                         lineHeight: '1.6',
-                                        color: '#4b5563'
+                                        color: '#cbd5e1'
                                     }}
                                 >
                                     <span
                                         style={{
                                             position: 'absolute',
                                             left: '8px',
-                                            color: '#9ca3af',
+                                            color: '#94a3b8',
                                             fontWeight: 'bold'
                                         }}
                                     >
                                         •
                                     </span>
                                     <code style={{
-                                        background: '#f9fafb',
+                                        background: 'rgba(148, 163, 184, 0.16)',
                                         padding: '2px 6px',
                                         borderRadius: '3px',
                                         fontSize: '13px',
+                                        color: '#e2e8f0',
                                         fontFamily: "'Monaco', 'Menlo', 'Ubuntu Mono', monospace"
                                     }}>
                                         {text.trim()}
@@ -132,11 +134,11 @@ function FormattedQuestion({ content }) {
                                     <code
                                         key={`code-${idx}-${match.index}`}
                                         style={{
-                                            background: '#f3f4f6',
+                                            background: 'rgba(148, 163, 184, 0.16)',
                                             padding: '1px 5px',
                                             borderRadius: '3px',
                                             fontSize: '13px',
-                                            color: '#dc2626',
+                                            color: '#fda4af',
                                             fontFamily: "'Monaco', 'Menlo', 'Ubuntu Mono', monospace"
                                         }}
                                     >
@@ -161,7 +163,7 @@ function FormattedQuestion({ content }) {
                                         marginBottom: '8px',
                                         fontSize: '14px',
                                         lineHeight: '1.7',
-                                        color: '#4b5563'
+                                        color: '#cbd5e1'
                                     }}
                                 >
                                     {parts.length > 0 ? parts : line}
@@ -214,7 +216,7 @@ function FormattedQuestion({ content }) {
     };
 
     return (
-        <div style={{ color: '#374151' }}>
+        <div style={{ color: '#e2e8f0' }}>
             {parseQuestion(content)}
         </div>
     );

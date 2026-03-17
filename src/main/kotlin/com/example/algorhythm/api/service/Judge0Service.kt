@@ -8,6 +8,7 @@ import com.example.algorhythm.consts.SUPPORTED_LANGUAGES
 import com.example.algorhythm.util.IndentationUtil
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.bodyToMono
 
 @Service
 class Judge0Service(
@@ -33,7 +34,7 @@ class Judge0Service(
                  .uri(SUBMISSION_URL)
                  .bodyValue(requestBody)
                  .retrieve()
-                 .bodyToMono(Judge0SubmissionResponse::class.java)
+                 .bodyToMono<Judge0SubmissionResponse>()
                  .block() ?: throw RuntimeException("No response from Judge0")
          } catch (_: Exception) {
              error("ERROR: Submission of code to Judge0 failed")
@@ -211,9 +212,6 @@ class Judge0Service(
             ?: ""
     companion object {
         private const val SUBMISSION_URL = "https://ce.judge0.com/submissions/"
-        private const val PYTHON_ID = 109
-        private const val JAVA_ID = 91
-        private const val C_ID = 103
     }
 }
 
