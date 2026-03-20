@@ -5,12 +5,14 @@ import com.example.algorhythm.api.repository.QuestionRepository
 import com.example.algorhythm.api.repository.UserRepository
 import com.example.algorhythm.api.repository.UserSessionRepository
 import com.example.algorhythm.api.service.*
+import org.springframework.http.HttpStatus
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.server.ResponseStatusException
 
 
 @RestController
@@ -53,6 +55,14 @@ class QuestionController (
         val currentUser = getCurrentUser()
         val userSession = userSessionRepository.findByUserId(currentUser.id)
             ?: error("User session not found. Start a session first.")
+
+        if (userSession.topicCheckRequired && !userSession.topicCheckPassed) {
+            throw ResponseStatusException(
+                HttpStatus.FORBIDDEN,
+                "Complete the topic check with at least 60% before moving on."
+            )
+        }
+
         val user = userSession.user
         val currentDifficulty = userSession.currentDifficulty
         val attemptsForCurrentQuestion = userSession.totalAttempts
@@ -76,6 +86,8 @@ class QuestionController (
         val question = questionService.generateQuestion(newDifficulty, user.experienceLevel ?: "beginner")
         userSession.currentQuestionId = question.id
         userSession.totalAttempts = 0
+        userSession.topicCheckRequired = false
+        userSession.topicCheckPassed = true
         userSessionRepository.save(userSession)
         return question
     }
@@ -94,6 +106,12 @@ class QuestionController (
                     difficulty = question.difficulty?.toString() ?: "Easy",
                     topics = question.topics
                 )
+
+                val userSession = userSessionRepository.findByUserId(currentUser.id)
+                    ?: error("User session not found. Start a session first.")
+                userSession.topicCheckRequired = true
+                userSession.topicCheckPassed = false
+                userSessionRepository.save(userSession)
             }
         }
 
@@ -124,6 +142,49 @@ class QuestionController (
         }
     }
 
+    @PostMapping("/topic-check/submit")
+    fun submitTopicCheck(@RequestBody request: TopicCheckSubmitRequest): TopicCheckSubmitResponse {
+        val currentUser = getCurrentUser()
+        val userSession = userSessionRepository.findByUserId(currentUser.id)
+            ?: error("User session not found. Start a session first.")
+
+        if (userSession.currentQuestionId != request.questionId) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Topic check must match the current question.")
+        }
+
+        val question = questionRepository.findById(request.questionId)
+            .orElseThrow { IllegalArgumentException("Question not found") }
+
+        val evaluation = topicQuizService.evaluateTopicCheck(question, request.answers, count = 5, requiredScore = 60)
+        val topicProgress = userProgressService.updateTopicProgress(
+            user = currentUser,
+            topicKey = evaluation.topicKey,
+            quizScore = evaluation.score
+        )
+
+        userSession.topicCheckRequired = true
+        userSession.topicCheckPassed = evaluation.passed
+        userSessionRepository.save(userSession)
+
+        val message = when {
+            !evaluation.allAnswered -> "Answer all topic-check questions before continuing."
+            evaluation.passed -> "Great work. You can continue to the next question."
+            else -> "You need at least ${evaluation.requiredScore}% to continue. Review and try again."
+        }
+
+        return TopicCheckSubmitResponse(
+            topic = evaluation.topic,
+            topicKey = evaluation.topicKey,
+            score = evaluation.score,
+            requiredScore = evaluation.requiredScore,
+            passed = evaluation.passed,
+            correctCount = evaluation.correctCount,
+            totalCount = evaluation.totalCount,
+            topicProgress = topicProgress.updated,
+            message = message
+        )
+    }
+
     data class CodeSubmissionRequest(
         val code: String,
         val language: String,
@@ -147,10 +208,27 @@ class QuestionController (
         val questionId: Long
     )
 
+    data class TopicCheckSubmitRequest(
+        val questionId: Long,
+        val answers: List<TopicCheckAnswer>
+    )
+
     data class TopicCheckQuestionResponse(
         val id: String,
         val statement: String,
         val isTrue: Boolean
+    )
+
+    data class TopicCheckSubmitResponse(
+        val topic: String,
+        val topicKey: String,
+        val score: Int,
+        val requiredScore: Int,
+        val passed: Boolean,
+        val correctCount: Int,
+        val totalCount: Int,
+        val topicProgress: Int,
+        val message: String
     )
 
     private fun getCurrentUser() =

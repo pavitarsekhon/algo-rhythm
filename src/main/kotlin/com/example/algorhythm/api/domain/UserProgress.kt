@@ -45,7 +45,10 @@ class UserProgress(
     var stringMatchingCompleted: Int = 0,
     var treeCompleted: Int = 0,
     var trieCompleted: Int = 0,
-    var twoPointersCompleted: Int = 0
+    var twoPointersCompleted: Int = 0,
+
+    @Column(name = "topic_progress_json", columnDefinition = "TEXT", nullable = false)
+    var topicProgressJson: String = "{}"
 ) {
     // Helper method to increment topic count by topic name
     fun incrementTopicCount(topic: String) {
