@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-    Badge,
     Box,
     Button,
     Container,
@@ -114,9 +113,6 @@ function HomePage() {
                 >
                     <Stack spacing={6}>
                         <Stack spacing={2} textAlign="center">
-                            <Badge alignSelf="center" colorScheme="cyan" px={3} py={1} borderRadius="full">
-                                coder mode
-                            </Badge>
                             <Heading color="cyan.300" fontSize={{ base: "3xl", md: "4xl" }}>
                                 AlgoRhythm
                             </Heading>

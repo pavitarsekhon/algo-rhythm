@@ -4,7 +4,7 @@ import {useRef, useState, useEffect} from "react";
 import {PYTHON_SNIPPET} from "../constants";
 import Output from "./Output";
 
-const CodeEditor = ({question, onNextQuestion, onEditorRef }) => {
+const CodeEditor = ({question, onNextQuestion, onEditorRef, onTopicProgressUpdate }) => {
     const editorRef = useRef()
     const [value, setValue] = useState('')
 
@@ -43,6 +43,7 @@ const CodeEditor = ({question, onNextQuestion, onEditorRef }) => {
                         editorRef={editorRef}
                         question={question}
                         onNextQuestion={onNextQuestion}
+                        onTopicProgressUpdate={onTopicProgressUpdate}
                     />
                 </Box>
             </VStack>
