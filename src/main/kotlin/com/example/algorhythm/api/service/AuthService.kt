@@ -9,7 +9,6 @@ import com.example.algorhythm.api.repository.UserRepository
 import com.example.algorhythm.api.repository.UserSessionRepository
 import com.example.algorhythm.api.repository.UserProgressRepository
 import com.example.algorhythm.api.security.JwtUtil
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -42,7 +41,6 @@ class AuthService(
                 QuestionDifficulty.EASY
             }
         }
-
 
         // Create user session
         val userSession = UserSession(

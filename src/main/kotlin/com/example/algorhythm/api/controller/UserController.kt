@@ -3,6 +3,7 @@ package com.example.algorhythm.api.controller
 import com.example.algorhythm.api.repository.UserRepository
 import com.example.algorhythm.api.repository.UserSessionRepository
 import com.example.algorhythm.api.repository.UserProgressRepository
+import com.example.algorhythm.api.service.UserProgressService
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.GetMapping
@@ -14,7 +15,8 @@ import org.springframework.web.bind.annotation.RestController
 class UserController(
     private val userRepository: UserRepository,
     private val userSessionRepository: UserSessionRepository,
-    private val userProgressRepository: UserProgressRepository
+    private val userProgressRepository: UserProgressRepository,
+    private val userProgressService: UserProgressService
 ) {
 
     @GetMapping("/profile")
@@ -75,7 +77,8 @@ class UserController(
                             "Tree" to it.treeCompleted,
                             "Trie" to it.trieCompleted,
                             "Two Pointers" to it.twoPointersCompleted
-                        )
+                        ),
+                        topicProgress = userProgressService.getTopicProgressMap(it)
                     )
                 }
             )
@@ -87,7 +90,8 @@ data class UserProgressDTO(
     val easyCompleted: Int,
     val mediumCompleted: Int,
     val hardCompleted: Int,
-    val topicCounts: Map<String, Int>
+    val topicCounts: Map<String, Int>,
+    val topicProgress: Map<String, Int>
 )
 
 data class UserProfileResponse(

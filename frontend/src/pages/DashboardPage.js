@@ -73,6 +73,12 @@ function DashboardPage() {
             .sort((a, b) => b[1] - a[1]);
     };
 
+    const getTopicProgressEntries = () => {
+        if (!profile?.progress?.topicProgress) return [];
+        return Object.entries(profile.progress.topicProgress)
+            .sort((a, b) => b[1] - a[1]);
+    };
+
     // Calculate total topic completions for pie chart
     const getTotalTopicCompletions = () => {
         return getActiveTopics().reduce((sum, [_, count]) => sum + count, 0);
@@ -232,7 +238,7 @@ function DashboardPage() {
 
                     {profile?.progress && (
                         <Box bg="rgba(15, 23, 42, 0.9)" borderWidth="1px" borderColor="whiteAlpha.200" borderRadius="xl" p={{ base: 4, md: 6 }}>
-                            <Heading size="md" color="white" mb={4}>Topics Mastered</Heading>
+                            <Heading size="md" color="white" mb={4}>Topics Attempted</Heading>
                             {getActiveTopics().length > 0 ? (
                                 <Grid templateColumns={{ base: "1fr", lg: "280px 1fr" }} gap={6}>
                                     <Flex justify="center" align="center">
@@ -288,6 +294,27 @@ function DashboardPage() {
                                     <Text fontSize="3xl">📊</Text>
                                     <Text>Complete problems to see your topic progress.</Text>
                                 </Stack>
+                            )}
+                        </Box>
+                    )}
+
+                    {profile?.progress && (
+                        <Box bg="rgba(15, 23, 42, 0.9)" borderWidth="1px" borderColor="whiteAlpha.200" borderRadius="xl" p={{ base: 4, md: 6 }}>
+                            <Heading size="md" color="white" mb={4}>Topic Progress</Heading>
+                            {getTopicProgressEntries().length > 0 ? (
+                                <Stack spacing={3}>
+                                    {getTopicProgressEntries().map(([topic, progress]) => (
+                                        <Box key={topic}>
+                                            <HStack justify="space-between" mb={1}>
+                                                <Text color="gray.200" fontSize="sm" textTransform="capitalize">{topic}</Text>
+                                                <Text color="cyan.300" fontWeight="bold" fontSize="sm">{progress}%</Text>
+                                            </HStack>
+                                            <Progress value={progress} colorScheme="cyan" bg="whiteAlpha.200" borderRadius="md" />
+                                        </Box>
+                                    ))}
+                                </Stack>
+                            ) : (
+                                <Text color="gray.400">Complete topic checks to build your topicProgress profile.</Text>
                             )}
                         </Box>
                     )}
