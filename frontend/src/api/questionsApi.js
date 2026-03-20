@@ -1,25 +1,30 @@
 import API from "./axiosConfig";
 
-export const runSourceCode = (language, sourceCode) =>
-    API.post("/questions/run", { language, code: sourceCode });
+const PYTHON_LANGUAGE = "python";
 
-export const runTestCases = (language, code, question, customTestCases = null) =>
+export const runSourceCode = (sourceCode) =>
+    API.post("/questions/run", { language: PYTHON_LANGUAGE, code: sourceCode });
+
+export const runTestCases = (code, question, customTestCases = null) =>
     API.post("/questions/run-tests", {
-        language,
+        language: PYTHON_LANGUAGE,
         code,
         questionId: question.id,
         customTestCases,
     });
 
-export const submitCode = (language, code, question) =>
+export const submitCode = (code, question) =>
     API.post("/questions/submit", {
-        language,
+        language: PYTHON_LANGUAGE,
         code,
         questionId: question.id,
     });
 
 export const getTopicCheckQuestions = (questionId) =>
     API.post("/questions/topic-check", { questionId });
+
+export const submitTopicCheckAnswers = (questionId, answers) =>
+    API.post("/questions/topic-check/submit", { questionId, answers });
 
 // Get the user's current question (without advancing to next)
 export const getCurrentQuestion = () => API.get("/questions/current");

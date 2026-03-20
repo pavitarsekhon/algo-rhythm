@@ -1,7 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+    Badge,
+    Box,
+    Button,
+    Container,
+    Flex,
+    Grid,
+    Heading,
+    HStack,
+    Progress,
+    SimpleGrid,
+    Spinner,
+    Stack,
+    Text,
+} from "@chakra-ui/react";
 import { getUserProfile } from "../api/userApi";
-import "./DashboardPage.css";
 
 function DashboardPage() {
     const navigate = useNavigate();
@@ -38,11 +52,11 @@ function DashboardPage() {
 
     // Colors for pie chart
     const pieColors = [
-        "#667eea", "#764ba2", "#10b981", "#f59e0b", "#ef4444",
-        "#8b5cf6", "#06b6d4", "#ec4899", "#14b8a6", "#f97316",
-        "#6366f1", "#84cc16", "#22d3d8", "#a855f7", "#eab308",
-        "#3b82f6", "#22c55e", "#d946ef", "#0ea5e9", "#fb923c",
-        "#8b5cf6", "#34d399", "#f472b6", "#2dd4bf", "#fbbf24"
+        "#06b6d4", "#10b981", "#f59e0b", "#ef4444", "#14b8a6",
+        "#f97316", "#84cc16", "#22d3ee", "#eab308", "#3b82f6",
+        "#22c55e", "#0ea5e9", "#fb923c", "#34d399", "#2dd4bf",
+        "#facc15", "#38bdf8", "#4ade80", "#f43f5e", "#16a34a",
+        "#0284c7", "#65a30d", "#ea580c", "#0891b2", "#059669"
     ];
 
     // Get total problems completed from progress
@@ -56,6 +70,12 @@ function DashboardPage() {
         if (!profile?.progress?.topicCounts) return [];
         return Object.entries(profile.progress.topicCounts)
             .filter(([_, count]) => count > 0)
+            .sort((a, b) => b[1] - a[1]);
+    };
+
+    const getTopicProgressEntries = () => {
+        if (!profile?.progress?.topicProgress) return [];
+        return Object.entries(profile.progress.topicProgress)
             .sort((a, b) => b[1] - a[1]);
     };
 
@@ -116,210 +136,191 @@ function DashboardPage() {
 
     if (loading) {
         return (
-            <div className="dashboard-container">
-                <div className="dashboard-loading">
-                    <div className="loading-spinner"></div>
-                    <p>Loading your dashboard...</p>
-                </div>
-            </div>
+            <Flex minH="100vh" bg="#0b1220" align="center" justify="center" fontFamily="'JetBrains Mono', monospace">
+                <Stack align="center" spacing={4}>
+                    <Spinner size="xl" color="cyan.300" thickness="4px" />
+                    <Text color="gray.300">Loading your dashboard...</Text>
+                </Stack>
+            </Flex>
         );
     }
 
     return (
-        <div className="dashboard-container">
-            <div className="dashboard-content">
-                {/* Welcome Section */}
-                <div className="welcome-section">
-                    <div className="welcome-text">
-                        <h1>Welcome back, <span className="username-highlight">{profile?.username}</span></h1>
-                        <p>Ready to sharpen your coding skills today?</p>
-                    </div>
-                    <div className="quick-actions">
-                        <button
-                            className="action-btn primary"
-                            onClick={() => navigate("/question")}
-                        >
-                            <span className="btn-icon">⚡</span>
-                            Start Practice
-                        </button>
-                        {profile?.isAdmin && (
-                            <button
-                                className="action-btn secondary"
-                                onClick={() => navigate("/admin")}
-                            >
-                                <span className="btn-icon">⚙️</span>
-                                Admin Panel
-                            </button>
-                        )}
-                    </div>
-                </div>
+        <Box
+            minH="100vh"
+            bg="#0b1220"
+            backgroundImage="radial-gradient(circle at 15% 20%, rgba(56, 189, 248, 0.1), transparent 30%)"
+            py={{ base: 6, md: 10 }}
+            px={{ base: 3, md: 6 }}
+            fontFamily="'JetBrains Mono', monospace"
+        >
+            <Container maxW="7xl">
+                <Stack spacing={8}>
+                    <Flex justify="space-between" align={{ base: "flex-start", md: "center" }} direction={{ base: "column", md: "row" }} gap={4}>
+                        <Stack spacing={1}>
+                            <Heading color="white" size="lg">
+                                Welcome back, <Text as="span" color="cyan.300">{profile?.username}</Text>
+                            </Heading>
+                            <Text color="gray.300">Ready to sharpen your coding skills today?</Text>
+                        </Stack>
+                        <HStack spacing={3}>
+                            <Button onClick={() => navigate("/question")} bg="cyan.600" color="white" _hover={{ bg: "cyan.500" }}>
+                                Start Practice
+                            </Button>
+                            {profile?.isAdmin && (
+                                <Button onClick={() => navigate("/admin")} variant="outline" borderColor="whiteAlpha.400" color="gray.200" _hover={{ bg: "whiteAlpha.100" }}>
+                                    Admin Panel
+                                </Button>
+                            )}
+                        </HStack>
+                    </Flex>
 
-                {/* Stats Grid */}
-                <div className="stats-grid">
-                    {/* Problems Solved Card */}
-                    <div className="stat-card">
-                        <div className="stat-icon solved">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div className="stat-info">
-                            <span className="stat-value">{getTotalCompleted()}</span>
-                            <span className="stat-label">Problems Solved</span>
-                        </div>
-                    </div>
+                    <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+                        <Box bg="rgba(15, 23, 42, 0.9)" borderWidth="1px" borderColor="whiteAlpha.200" borderRadius="xl" p={5}>
+                            <Text color="green.300" fontSize="sm">Problems Solved</Text>
+                            <Heading color="white" size="lg" mt={1}>{getTotalCompleted()}</Heading>
+                        </Box>
+                        <Box bg="rgba(15, 23, 42, 0.9)" borderWidth="1px" borderColor="whiteAlpha.200" borderRadius="xl" p={5}>
+                            <Text color="orange.300" fontSize="sm">Success Rate</Text>
+                            <Heading color="white" size="lg" mt={1}>{profile?.successRate || 0}%</Heading>
+                        </Box>
+                        <Box bg="rgba(15, 23, 42, 0.9)" borderWidth="1px" borderColor="whiteAlpha.200" borderRadius="xl" p={5}>
+                            <Text color="gray.300" fontSize="sm">Current Level</Text>
+                            <Heading mt={1} size="lg" color={getDifficultyColor(profile?.currentDifficulty)} textTransform="capitalize">
+                                {profile?.currentDifficulty || "easy"}
+                            </Heading>
+                        </Box>
+                    </SimpleGrid>
 
-                    {/* Success Rate Card */}
-                    <div className="stat-card">
-                        <div className="stat-icon rate">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                            </svg>
-                        </div>
-                        <div className="stat-info">
-                            <span className="stat-value">{profile?.successRate || 0}%</span>
-                            <span className="stat-label">Success Rate</span>
-                        </div>
-                    </div>
-
-                    {/* Current Level Card */}
-                    <div className="stat-card">
-                        <div className="stat-icon level" style={{ color: getDifficultyColor(profile?.currentDifficulty) }}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                            </svg>
-                        </div>
-                        <div className="stat-info">
-                            <span
-                                className="stat-value difficulty"
-                                style={{ color: getDifficultyColor(profile?.currentDifficulty) }}
-                            >
-                                {profile?.currentDifficulty || "Easy"}
-                            </span>
-                            <span className="stat-label">Current Level</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Difficulty Breakdown */}
-                {profile?.progress && (
-                    <div className="difficulty-section">
-                        <h2>Difficulty Breakdown</h2>
-                        <div className="difficulty-cards">
-                            <div className="difficulty-card easy">
-                                <div className="difficulty-count">{profile.progress.easyCompleted}</div>
-                                <div className="difficulty-label">Easy</div>
-                                <div className="difficulty-bar">
-                                    <div
-                                        className="difficulty-fill"
-                                        style={{
-                                            width: getTotalCompleted() > 0
-                                                ? `${(profile.progress.easyCompleted / getTotalCompleted()) * 100}%`
-                                                : '0%'
-                                        }}
+                    {profile?.progress && (
+                        <Box bg="rgba(15, 23, 42, 0.9)" borderWidth="1px" borderColor="whiteAlpha.200" borderRadius="xl" p={{ base: 4, md: 6 }}>
+                            <Heading size="md" color="white" mb={4}>Difficulty Breakdown</Heading>
+                            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+                                <Box>
+                                    <HStack justify="space-between" mb={2}>
+                                        <Text color="green.300">Easy</Text>
+                                        <Badge colorScheme="green">{profile.progress.easyCompleted}</Badge>
+                                    </HStack>
+                                    <Progress
+                                        value={getTotalCompleted() > 0 ? (profile.progress.easyCompleted / getTotalCompleted()) * 100 : 0}
+                                        colorScheme="green"
+                                        bg="whiteAlpha.200"
+                                        borderRadius="md"
                                     />
-                                </div>
-                            </div>
-                            <div className="difficulty-card medium">
-                                <div className="difficulty-count">{profile.progress.mediumCompleted}</div>
-                                <div className="difficulty-label">Medium</div>
-                                <div className="difficulty-bar">
-                                    <div
-                                        className="difficulty-fill"
-                                        style={{
-                                            width: getTotalCompleted() > 0
-                                                ? `${(profile.progress.mediumCompleted / getTotalCompleted()) * 100}%`
-                                                : '0%'
-                                        }}
+                                </Box>
+                                <Box>
+                                    <HStack justify="space-between" mb={2}>
+                                        <Text color="orange.300">Medium</Text>
+                                        <Badge colorScheme="orange">{profile.progress.mediumCompleted}</Badge>
+                                    </HStack>
+                                    <Progress
+                                        value={getTotalCompleted() > 0 ? (profile.progress.mediumCompleted / getTotalCompleted()) * 100 : 0}
+                                        colorScheme="orange"
+                                        bg="whiteAlpha.200"
+                                        borderRadius="md"
                                     />
-                                </div>
-                            </div>
-                            <div className="difficulty-card hard">
-                                <div className="difficulty-count">{profile.progress.hardCompleted}</div>
-                                <div className="difficulty-label">Hard</div>
-                                <div className="difficulty-bar">
-                                    <div
-                                        className="difficulty-fill"
-                                        style={{
-                                            width: getTotalCompleted() > 0
-                                                ? `${(profile.progress.hardCompleted / getTotalCompleted()) * 100}%`
-                                                : '0%'
-                                        }}
+                                </Box>
+                                <Box>
+                                    <HStack justify="space-between" mb={2}>
+                                        <Text color="red.300">Hard</Text>
+                                        <Badge colorScheme="red">{profile.progress.hardCompleted}</Badge>
+                                    </HStack>
+                                    <Progress
+                                        value={getTotalCompleted() > 0 ? (profile.progress.hardCompleted / getTotalCompleted()) * 100 : 0}
+                                        colorScheme="red"
+                                        bg="whiteAlpha.200"
+                                        borderRadius="md"
                                     />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                                </Box>
+                            </SimpleGrid>
+                        </Box>
+                    )}
 
-                {/* Topic Progress - Pie Chart */}
-                {profile?.progress && (
-                    <div className="topics-section">
-                        <h2>Topics Mastered</h2>
-                        {getActiveTopics().length > 0 ? (
-                            <div className="topics-chart-container">
-                                {/* Pie Chart */}
-                                <div className="pie-chart-wrapper">
-                                    <svg viewBox="0 0 200 200" className="pie-chart">
-                                        {getPieChartSegments().map((segment, index) => (
-                                            <path
+                    {profile?.progress && (
+                        <Box bg="rgba(15, 23, 42, 0.9)" borderWidth="1px" borderColor="whiteAlpha.200" borderRadius="xl" p={{ base: 4, md: 6 }}>
+                            <Heading size="md" color="white" mb={4}>Topics Attempted</Heading>
+                            {getActiveTopics().length > 0 ? (
+                                <Grid templateColumns={{ base: "1fr", lg: "280px 1fr" }} gap={6}>
+                                    <Flex justify="center" align="center">
+                                        <svg viewBox="0 0 200 200" width="240" height="240">
+                                            {getPieChartSegments().map((segment) => (
+                                                <path
+                                                    key={segment.topic}
+                                                    d={describeArc(100, 100, 85, segment.startAngle, segment.endAngle)}
+                                                    fill={segment.color}
+                                                    style={{
+                                                        opacity: hoveredSegment && hoveredSegment !== segment.topic ? 0.5 : 1,
+                                                        transition: "opacity 0.2s ease"
+                                                    }}
+                                                    onMouseEnter={() => setHoveredSegment(segment.topic)}
+                                                    onMouseLeave={() => setHoveredSegment(null)}
+                                                >
+                                                    <title>{segment.topic}: {segment.count} ({segment.percentage.toFixed(1)}%)</title>
+                                                </path>
+                                            ))}
+                                            <circle cx="100" cy="100" r="55" fill="#0b1220" />
+                                            <text x="100" y="95" textAnchor="middle" fill="#e2e8f0" fontSize="28" fontWeight="700">
+                                                {getTotalTopicCompletions()}
+                                            </text>
+                                            <text x="100" y="114" textAnchor="middle" fill="#94a3b8" fontSize="12">
+                                                Total
+                                            </text>
+                                        </svg>
+                                    </Flex>
+
+                                    <Stack spacing={2} maxH="300px" overflowY="auto" pr={1}>
+                                        {getPieChartSegments().map((segment) => (
+                                            <HStack
                                                 key={segment.topic}
-                                                d={describeArc(100, 100, 85, segment.startAngle, segment.endAngle)}
-                                                fill={segment.color}
-                                                className={`pie-segment ${hoveredSegment === segment.topic ? 'hovered' : ''}`}
-                                                style={{
-                                                    animationDelay: `${index * 0.05}s`,
-                                                    opacity: hoveredSegment && hoveredSegment !== segment.topic ? 0.5 : 1
-                                                }}
+                                                px={3}
+                                                py={2}
+                                                borderRadius="md"
+                                                bg={hoveredSegment === segment.topic ? "whiteAlpha.200" : "transparent"}
+                                                borderWidth="1px"
+                                                borderColor="whiteAlpha.200"
                                                 onMouseEnter={() => setHoveredSegment(segment.topic)}
                                                 onMouseLeave={() => setHoveredSegment(null)}
                                             >
-                                                <title>{segment.topic}: {segment.count} ({segment.percentage.toFixed(1)}%)</title>
-                                            </path>
+                                                <Box w="12px" h="12px" borderRadius="3px" bg={segment.color} />
+                                                <Text flex="1" color="gray.200" fontSize="sm">{segment.topic}</Text>
+                                                <Text color="white" fontWeight="bold" fontSize="sm">{segment.count}</Text>
+                                                <Text color="gray.400" fontSize="xs">{segment.percentage.toFixed(1)}%</Text>
+                                            </HStack>
                                         ))}
-                                        {/* Center circle for donut effect */}
-                                        <circle cx="100" cy="100" r="55" fill="white" />
-                                        <text x="100" y="92" textAnchor="middle" className="pie-center-number">
-                                            {getTotalTopicCompletions()}
-                                        </text>
-                                        <text x="100" y="112" textAnchor="middle" className="pie-center-label">
-                                            Total
-                                        </text>
-                                    </svg>
-                                </div>
+                                    </Stack>
+                                </Grid>
+                            ) : (
+                                <Stack align="center" py={8} color="gray.400">
+                                    <Text fontSize="3xl">📊</Text>
+                                    <Text>Complete problems to see your topic progress.</Text>
+                                </Stack>
+                            )}
+                        </Box>
+                    )}
 
-                                {/* Legend */}
-                                <div className="pie-legend">
-                                    {getPieChartSegments().map((segment) => (
-                                        <div
-                                            key={segment.topic}
-                                            className={`legend-item ${hoveredSegment === segment.topic ? 'hovered' : ''}`}
-                                            onMouseEnter={() => setHoveredSegment(segment.topic)}
-                                            onMouseLeave={() => setHoveredSegment(null)}
-                                        >
-                                            <span
-                                                className="legend-color"
-                                                style={{ backgroundColor: segment.color }}
-                                            />
-                                            <span className="legend-topic">{segment.topic}</span>
-                                            <span className="legend-count">{segment.count}</span>
-                                            <span className="legend-percentage">
-                                                {segment.percentage.toFixed(1)}%
-                                            </span>
-                                        </div>
+                    {profile?.progress && (
+                        <Box bg="rgba(15, 23, 42, 0.9)" borderWidth="1px" borderColor="whiteAlpha.200" borderRadius="xl" p={{ base: 4, md: 6 }}>
+                            <Heading size="md" color="white" mb={4}>Topic Progress</Heading>
+                            {getTopicProgressEntries().length > 0 ? (
+                                <Stack spacing={3}>
+                                    {getTopicProgressEntries().map(([topic, progress]) => (
+                                        <Box key={topic}>
+                                            <HStack justify="space-between" mb={1}>
+                                                <Text color="gray.200" fontSize="sm" textTransform="capitalize">{topic}</Text>
+                                                <Text color="cyan.300" fontWeight="bold" fontSize="sm">{progress}%</Text>
+                                            </HStack>
+                                            <Progress value={progress} colorScheme="cyan" bg="whiteAlpha.200" borderRadius="md" />
+                                        </Box>
                                     ))}
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="no-topics">
-                                <div className="no-topics-icon">📊</div>
-                                <p>Complete problems to see your topic progress!</p>
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
-        </div>
+                                </Stack>
+                            ) : (
+                                <Text color="gray.400">Complete topic checks to build your topicProgress profile.</Text>
+                            )}
+                        </Box>
+                    )}
+                </Stack>
+            </Container>
+        </Box>
     );
 }
 

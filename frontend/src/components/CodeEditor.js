@@ -1,23 +1,21 @@
 import {Box, VStack} from "@chakra-ui/react";
 import {Editor} from "@monaco-editor/react";
 import {useRef, useState, useEffect} from "react";
-import LanguageSelector from "./LanguageSelector";
-import {CODE_SNIPPETS} from "../constants";
+import {PYTHON_SNIPPET} from "../constants";
 import Output from "./Output";
 
-const CodeEditor = ({question, onNextQuestion, onEditorRef }) => {
+const CodeEditor = ({question, onNextQuestion, onEditorRef, onTopicProgressUpdate }) => {
     const editorRef = useRef()
     const [value, setValue] = useState('')
-    const [language, setLanguage] = useState('python')
 
     // Initialize editor with starterCode when question changes
     useEffect(() => {
         if (question?.starterCode) {
             setValue(question.starterCode);
         } else {
-            setValue(CODE_SNIPPETS[language]);
+            setValue(PYTHON_SNIPPET);
         }
-    }, [question, language]);
+    }, [question]);
 
     const onMount = (editor) => {
         editorRef.current = editor;
@@ -25,26 +23,17 @@ const CodeEditor = ({question, onNextQuestion, onEditorRef }) => {
         onEditorRef(editorRef);
     }
 
-    const onSelect = (language) => {
-        setLanguage(language)
-        // Use starterCode if available, otherwise use default snippet
-        if (question?.starterCode) {
-            setValue(question.starterCode)
-        } else {
-            setValue(CODE_SNIPPETS[language])
-        }
-    }
+
     return (
         <Box>
             <VStack spacing={4}>
                 <Box w="100%">
-                    <LanguageSelector language={language} onSelect={onSelect}/>
                     <Editor
                         height="300px"
                         theme="vs-dark"
-                        language={language}
+                        language="python"
                         value={value}
-                        defaultValue={CODE_SNIPPETS[language]}
+                        defaultValue={PYTHON_SNIPPET}
                         onMount={onMount}
                         onChange={(value) => setValue(value)}
                     />
@@ -52,9 +41,9 @@ const CodeEditor = ({question, onNextQuestion, onEditorRef }) => {
                 <Box w="100%">
                     <Output
                         editorRef={editorRef}
-                        language={language}
                         question={question}
                         onNextQuestion={onNextQuestion}
+                        onTopicProgressUpdate={onTopicProgressUpdate}
                     />
                 </Box>
             </VStack>

@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from "react";
+import { Badge, Box, Flex, Heading, Stack } from "@chakra-ui/react";
 import ChatBox from "../components/ChatBox";
 import CodeEditor from "../components/CodeEditor";
 import FormattedQuestion from "../components/FormattedQuestion";
 import { getCurrentQuestion, getNextQuestion } from "../api/questionsApi";
+import { getUserProfile } from "../api/userApi";
 import { useNavigate } from "react-router-dom";
-import "./QuestionPage.css";
 
 function QuestionPage() {
     const navigate = useNavigate();
     const [question, setQuestion] = useState(null);
     const [editorRef, setEditorRef] = useState(null);
+    const [topicProgressMap, setTopicProgressMap] = useState({});
+
+    const normalizeTopicKey = (topic) =>
+        (topic || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -22,6 +27,10 @@ function QuestionPage() {
         getCurrentQuestion()
             .then((res) => setQuestion(res.data))
             .catch((err) => console.error("Failed to fetch current question:", err));
+
+        getUserProfile()
+            .then((data) => setTopicProgressMap(data?.progress?.topicProgress || {}))
+            .catch((err) => console.error("Failed to fetch topic progress:", err));
     }, [navigate]);
 
     const loadNextQuestion = () => {
@@ -35,36 +44,82 @@ function QuestionPage() {
         return difficulty?.toLowerCase() || "";
     };
 
+    const currentTopic = question?.topics?.split("|")[0]?.trim() || "";
+    const currentTopicProgress = topicProgressMap[normalizeTopicKey(currentTopic)];
+
+    const handleTopicProgressUpdate = (topicKey, score) => {
+        if (!topicKey) return;
+        setTopicProgressMap((prev) => ({ ...prev, [topicKey]: score }));
+    };
+
     return (
-        <div className="question-page-container">
-            {/* LEFT SIDE - Question & Editor */}
-            <div className="question-left-panel">
-                {/* Question Card */}
-                <div className="question-card">
-                    <div className="question-card-header">
-                        <h1 className="question-card-title">
+        <Flex
+            h="100dvh"
+            bg="#0b1220"
+            backgroundImage="radial-gradient(circle at 15% 20%, rgba(56, 189, 248, 0.1), transparent 30%)"
+            fontFamily="'JetBrains Mono', monospace"
+        >
+            <Box flex="2" p={10} overflowY="auto">
+                <Stack spacing={6}>
+                    <Box bg="rgba(15, 23, 42, 0.9)" borderRadius="16px" p={8} boxShadow="xl" borderWidth="1px" borderColor="whiteAlpha.200">
+                        <Flex justify="space-between" align="flex-start" mb={5} gap={4}>
+                            <Heading size="md" color="white">
                             {question?.topics ? question.topics.split('|')[0] : "Loading..."}
-                        </h1>
+                            </Heading>
                         {question?.difficulty && (
-                            <span className={`difficulty-tag ${getDifficultyClass(question.difficulty)}`}>
-                                {question.difficulty}
-                            </span>
+                            <Flex gap={2} wrap="wrap" justify="flex-end">
+                                <Badge
+                                    px={4}
+                                    py={1.5}
+                                    borderRadius="full"
+                                    textTransform="capitalize"
+                                    fontSize="xs"
+                                    fontWeight="semibold"
+                                    colorScheme={
+                                        getDifficultyClass(question.difficulty) === "easy"
+                                            ? "green"
+                                            : getDifficultyClass(question.difficulty) === "medium"
+                                                ? "orange"
+                                                : "red"
+                                    }
+                                    variant="subtle"
+                                >
+                                    {question.difficulty}
+                                </Badge>
+                                {currentTopicProgress !== undefined && (
+                                    <Badge
+                                        px={4}
+                                        py={1.5}
+                                        borderRadius="full"
+                                        fontSize="xs"
+                                        fontWeight="semibold"
+                                        colorScheme="cyan"
+                                        variant="subtle"
+                                    >
+                                        TopicProgress: {currentTopicProgress}%
+                                    </Badge>
+                                )}
+                            </Flex>
                         )}
-                    </div>
-                    <FormattedQuestion content={question?.prompt} />
-                </div>
+                        </Flex>
+                        <FormattedQuestion content={question?.prompt} />
+                    </Box>
 
-                {/* Code Editor Card */}
-                <div className="editor-card">
-                    <CodeEditor question={question} onNextQuestion={loadNextQuestion} onEditorRef={setEditorRef}/>
-                </div>
-            </div>
+                    <Box bg="rgba(15, 23, 42, 0.9)" borderRadius="16px" p={8} boxShadow="xl" borderWidth="1px" borderColor="whiteAlpha.200">
+                        <CodeEditor
+                            question={question}
+                            onNextQuestion={loadNextQuestion}
+                            onEditorRef={setEditorRef}
+                            onTopicProgressUpdate={handleTopicProgressUpdate}
+                        />
+                    </Box>
+                </Stack>
+            </Box>
 
-            {/* RIGHT SIDE - ChatBox */}
-            <div className="question-right-panel">
-                <ChatBox editorRef={editorRef}/>
-            </div>
-        </div>
+            <Box w="420px" borderLeftWidth="1px" borderColor="whiteAlpha.200" bg="rgba(2, 6, 23, 0.92)">
+                <ChatBox editorRef={editorRef} />
+            </Box>
+        </Flex>
     );
 }
 
