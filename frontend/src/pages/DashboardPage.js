@@ -314,7 +314,7 @@ function DashboardPage() {
                                     ))}
                                 </Stack>
                             ) : (
-                                <Text color="gray.400">Complete topic checks to build your topicProgress profile.</Text>
+                                <Text color="gray.400">Complete topic checks to build your profile.</Text>
                             )}
                         </Box>
                     )}
