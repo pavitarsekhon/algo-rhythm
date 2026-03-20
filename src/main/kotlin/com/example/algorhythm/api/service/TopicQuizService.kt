@@ -29,9 +29,40 @@ class TopicQuizService {
         return HARD_TOPIC_CHECKS[matchedTopic] ?: HARD_TOPIC_CHECKS.getValue("array")
     }
 
-    private fun normalizeTopic(topic: String): String {
+    fun normalizeTopic(topic: String): String {
         val normalized = topic.lowercase().replace(Regex("[^a-z0-9]+"), " ").trim()
         return TOPIC_ALIASES[normalized] ?: normalized
+    }
+
+    fun evaluateTopicCheck(
+        question: Question,
+        answers: List<TopicCheckAnswer>,
+        count: Int = 5,
+        requiredScore: Int = 60
+    ): TopicCheckEvaluation {
+        val generated = generateTopicCheck(question, count)
+        val answerMap = answers.associate { it.id to it.answer }
+
+        val answeredCount = generated.count { answerMap.containsKey(it.id) }
+        val correctCount = generated.count { item -> answerMap[item.id] == item.isTrue }
+        val totalCount = generated.size
+        val score = if (totalCount == 0) 0 else (correctCount * 100) / totalCount
+        val allAnswered = answeredCount == totalCount
+        val passed = allAnswered && score >= requiredScore
+
+        val topicLabel = question.topics.split("|").firstOrNull()?.trim().orEmpty()
+        val topicKey = normalizeTopic(topicLabel)
+
+        return TopicCheckEvaluation(
+            topic = topicLabel,
+            topicKey = topicKey,
+            score = score,
+            correctCount = correctCount,
+            totalCount = totalCount,
+            allAnswered = allAnswered,
+            requiredScore = requiredScore,
+            passed = passed
+        )
     }
 }
 
@@ -44,6 +75,22 @@ data class TopicCheckItem(
 data class RawTopicCheckItem(
     val statement: String,
     val isTrue: Boolean
+)
+
+data class TopicCheckAnswer(
+    val id: String,
+    val answer: Boolean
+)
+
+data class TopicCheckEvaluation(
+    val topic: String,
+    val topicKey: String,
+    val score: Int,
+    val correctCount: Int,
+    val totalCount: Int,
+    val allAnswered: Boolean,
+    val requiredScore: Int,
+    val passed: Boolean
 )
 
 private val TOPIC_ALIASES = mapOf(

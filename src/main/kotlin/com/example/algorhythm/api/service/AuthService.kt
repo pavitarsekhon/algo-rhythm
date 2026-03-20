@@ -4,11 +4,11 @@ import com.example.algorhythm.api.controller.AuthRequest
 import com.example.algorhythm.api.domain.User
 import com.example.algorhythm.api.domain.UserSession
 import com.example.algorhythm.api.domain.UserProgress
+import com.example.algorhythm.api.enum.QuestionDifficulty
 import com.example.algorhythm.api.repository.UserRepository
 import com.example.algorhythm.api.repository.UserSessionRepository
 import com.example.algorhythm.api.repository.UserProgressRepository
 import com.example.algorhythm.api.security.JwtUtil
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -33,10 +33,20 @@ class AuthService(
         val user = User(username = username, password = hashedPassword, age = req.age, knownLanguages = req.knownLanguages, experienceLevel = req.experienceLevel)
         val savedUser = userRepository.save(user)
 
+        val difficulty = when (req.experienceLevel.lowercase()) {
+            "beginner" -> QuestionDifficulty.EASY
+            "intermediate" -> QuestionDifficulty.MEDIUM
+            "advanced" -> QuestionDifficulty.HARD
+            else -> {logger.warn("Unknown experience level '{}', defaulting to EASY", req.experienceLevel)
+                QuestionDifficulty.EASY
+            }
+        }
+
         // Create user session
         val userSession = UserSession(
             user = savedUser,
             active = true,
+            currentDifficulty = difficulty,
             currentQuestionId = 1
         )
         userSessionRepository.save(userSession)

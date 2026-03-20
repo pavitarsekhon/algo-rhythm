@@ -15,6 +15,7 @@ const TopicQuizModal = ({
     topic,
     questions,
     answers,
+    feedback,
     onAnswer,
     onContinue,
     onClose,
@@ -54,6 +55,21 @@ const TopicQuizModal = ({
                 <p style={{ marginTop: 0, marginBottom: "18px", color: "#334155" }}>
                     Before moving on, answer these true/false checks for <strong>{topic || "this topic"}</strong>.
                 </p>
+
+                {feedback && (
+                    <div style={{
+                        marginBottom: "12px",
+                        padding: "12px",
+                        borderRadius: "8px",
+                        border: `1px solid ${feedback.passed ? "#10b981" : "#f59e0b"}`,
+                        background: feedback.passed ? "#ecfdf5" : "#fffbeb",
+                        color: feedback.passed ? "#065f46" : "#92400e",
+                        fontSize: "14px",
+                        fontWeight: "600"
+                    }}>
+                        {feedback.message} ({feedback.correctCount}/{feedback.totalCount}, {feedback.score}% score, {feedback.topicProgress}% topicProgress)
+                    </div>
+                )}
 
                 {questions.map((item, index) => (
                     <div key={item.id} style={{
