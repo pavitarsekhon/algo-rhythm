@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Checkbox } from "@chakra-ui/react";
-import { getTopicCheckQuestions, submitCode, runTestCases } from "../api/questionsApi";
+import { getTopicCheckQuestions, submitCode, runTestCases, submitTopicCheckAnswers } from "../api/questionsApi";
 import TopicQuizModal from "./TopicQuizModal";
 
-const Output = ({ editorRef, question, onNextQuestion}) => {
+const Output = ({ editorRef, question, onNextQuestion, onTopicProgressUpdate }) => {
     const [submitResult, setSubmitResult] = useState(null);
     const [runResult, setRunResult] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -16,6 +16,7 @@ const Output = ({ editorRef, question, onNextQuestion}) => {
     const [isAdvancing, setIsAdvancing] = useState(false);
     const [isLoadingTopicQuiz, setIsLoadingTopicQuiz] = useState(false);
     const [topicQuizError, setTopicQuizError] = useState(null);
+    const [topicQuizFeedback, setTopicQuizFeedback] = useState(null);
 
     useEffect(() => {
         setSubmitResult(null);
@@ -28,6 +29,7 @@ const Output = ({ editorRef, question, onNextQuestion}) => {
         setIsAdvancing(false);
         setIsLoadingTopicQuiz(false);
         setTopicQuizError(null);
+        setTopicQuizFeedback(null);
     }, [question?.id]);
 
     const handleContinueToNextQuestion = async () => {
@@ -39,11 +41,24 @@ const Output = ({ editorRef, question, onNextQuestion}) => {
         }
 
         setIsAdvancing(true);
-        setSubmitResult(null);
-        setRunResult(null);
-        setIsTopicQuizOpen(false);
         try {
-            await Promise.resolve(onNextQuestion?.());
+            const submittedAnswers = topicQuizQuestions.map((item, index) => ({
+                id: item.id,
+                answer: Boolean(topicQuizAnswers[index])
+            }));
+            const response = await submitTopicCheckAnswers(question.id, submittedAnswers);
+            setTopicQuizFeedback(response.data);
+
+            if (response.data?.topicKey && typeof response.data?.topicProgress === "number") {
+                onTopicProgressUpdate?.(response.data.topicKey, response.data.topicProgress);
+            }
+
+            if (response.data?.passed) {
+                setSubmitResult(null);
+                setRunResult(null);
+                setIsTopicQuizOpen(false);
+                await Promise.resolve(onNextQuestion?.());
+            }
         } finally {
             setIsAdvancing(false);
         }
@@ -55,6 +70,7 @@ const Output = ({ editorRef, question, onNextQuestion}) => {
         }
 
         setTopicQuizError(null);
+        setTopicQuizFeedback(null);
         setIsLoadingTopicQuiz(true);
         getTopicCheckQuestions(question.id)
             .then((res) => {
@@ -77,6 +93,7 @@ const Output = ({ editorRef, question, onNextQuestion}) => {
     };
 
     const handleTopicAnswer = (index, value) => {
+        setTopicQuizFeedback(null);
         setTopicQuizAnswers((prev) => ({ ...prev, [index]: value }));
     };
 
@@ -445,6 +462,7 @@ const Output = ({ editorRef, question, onNextQuestion}) => {
                 topic={question?.topics?.split("|")[0]?.trim()}
                 questions={topicQuizQuestions}
                 answers={topicQuizAnswers}
+                feedback={topicQuizFeedback}
                 onAnswer={handleTopicAnswer}
                 onContinue={handleContinueToNextQuestion}
                 onClose={() => setIsTopicQuizOpen(false)}
