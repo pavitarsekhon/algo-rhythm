@@ -181,10 +181,6 @@ function DashboardPage() {
                             <Heading color="white" size="lg" mt={1}>{getTotalCompleted()}</Heading>
                         </Box>
                         <Box bg="rgba(15, 23, 42, 0.9)" borderWidth="1px" borderColor="whiteAlpha.200" borderRadius="xl" p={5}>
-                            <Text color="orange.300" fontSize="sm">Success Rate</Text>
-                            <Heading color="white" size="lg" mt={1}>{profile?.successRate || 0}%</Heading>
-                        </Box>
-                        <Box bg="rgba(15, 23, 42, 0.9)" borderWidth="1px" borderColor="whiteAlpha.200" borderRadius="xl" p={5}>
                             <Text color="gray.300" fontSize="sm">Current Level</Text>
                             <Heading mt={1} size="lg" color={getDifficultyColor(profile?.currentDifficulty)} textTransform="capitalize">
                                 {profile?.currentDifficulty || "easy"}

@@ -5,6 +5,9 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 40px 20px;
+    min-height: 100vh;
+    color: #e2e8f0;
+    font-family: 'JetBrains Mono', monospace;
 }
 
 .admin-header {
@@ -14,13 +17,13 @@
 .admin-title {
     font-size: 32px;
     font-weight: 700;
-    color: #1f2937;
+    color: #f8fafc;
     margin-bottom: 8px;
 }
 
 .admin-subtitle {
     font-size: 16px;
-    color: #6b7280;
+    color: #cbd5e1;
 }
 
 /* Tabs */
@@ -28,7 +31,7 @@
     display: flex;
     gap: 8px;
     margin-bottom: 24px;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
     padding-bottom: 16px;
 }
 
@@ -36,7 +39,7 @@
     padding: 12px 24px;
     font-size: 14px;
     font-weight: 500;
-    color: #6b7280;
+    color: #94a3b8;
     background: transparent;
     border: none;
     border-radius: 8px;
@@ -45,7 +48,8 @@
 }
 
 .admin-tab:hover {
-    background: #f3f4f6;
+    background: rgba(255, 255, 255, 0.08);
+    color: #e2e8f0;
 }
 
 .admin-tab-active {
@@ -53,7 +57,7 @@
     font-size: 14px;
     font-weight: 600;
     color: white;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #4f80ff 0%, #8b5cf6 100%);
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -78,14 +82,14 @@
 }
 
 .stat-card {
-    background: white;
+    background: rgba(15, 23, 42, 0.9);
     border-radius: 12px;
     padding: 24px;
     display: flex;
     align-items: center;
     gap: 16px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e5e7eb;
+    box-shadow: 0 8px 20px rgba(2, 6, 23, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .stat-icon {
@@ -104,35 +108,35 @@
 
 .stat-title {
     font-size: 14px;
-    color: #6b7280;
+    color: #cbd5e1;
     margin-bottom: 4px;
 }
 
 .stat-value {
     font-size: 24px;
     font-weight: 700;
-    color: #1f2937;
+    color: #f8fafc;
 }
 
 /* Question Generation Section */
 .generation-section {
-    background: white;
+    background: rgba(15, 23, 42, 0.9);
     border-radius: 12px;
     padding: 32px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e5e7eb;
+    box-shadow: 0 8px 20px rgba(2, 6, 23, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .section-title {
     font-size: 20px;
     font-weight: 600;
-    color: #1f2937;
+    color: #f8fafc;
     margin-bottom: 8px;
 }
 
 .section-subtitle {
     font-size: 14px;
-    color: #6b7280;
+    color: #cbd5e1;
     margin-bottom: 24px;
 }
 
@@ -152,17 +156,17 @@
 .form-label {
     font-size: 14px;
     font-weight: 500;
-    color: #374151;
+    color: #e2e8f0;
 }
 
 .form-select {
     padding: 10px 16px;
     font-size: 14px;
     border-radius: 8px;
-    border: 1px solid #d1d5db;
-    background: white;
-    background-color: white;
-    color: #1f2937;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(30, 41, 59, 0.95);
+    background-color: rgba(30, 41, 59, 0.95);
+    color: #f8fafc;
     cursor: pointer;
     min-width: 150px;
     appearance: auto;
@@ -170,12 +174,22 @@
     -moz-appearance: menulist;
 }
 
+.form-select:focus {
+    outline: none;
+    border-color: #67e8f9;
+    box-shadow: 0 0 0 1px #67e8f9;
+}
+
+.form-select option {
+    color: #0f172a;
+}
+
 .generate-btn {
     padding: 12px 24px;
     font-size: 14px;
     font-weight: 600;
     color: white;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #4f80ff 0%, #8b5cf6 100%);
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -187,11 +201,11 @@
 
 .generate-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 12px rgba(79, 128, 255, 0.35);
 }
 
 .generate-btn:disabled {
-    background: #9ca3af;
+    background: #64748b;
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
@@ -206,28 +220,24 @@
     animation: spin 1s linear infinite;
 }
 
-@keyframes spin {
-    to { transform: rotate(360deg); }
+/* Messages */
+.message-success {
+    background: rgba(16, 185, 129, 0.18);
+    color: #86efac;
+    border: 1px solid rgba(16, 185, 129, 0.45);
 }
 
-/* Messages */
+.message-error {
+    background: rgba(239, 68, 68, 0.18);
+    color: #fecaca;
+    border: 1px solid rgba(239, 68, 68, 0.45);
+}
+
 .message {
     margin-top: 16px;
     padding: 12px 16px;
     border-radius: 8px;
     font-size: 14px;
-}
-
-.message-success {
-    background: #ecfdf5;
-    color: #065f46;
-    border: 1px solid #a7f3d0;
-}
-
-.message-error {
-    background: #fef2f2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
 }
 
 /* Generated Questions List */
@@ -238,13 +248,13 @@
 .list-title {
     font-size: 16px;
     font-weight: 600;
-    color: #374151;
+    color: #e2e8f0;
     margin-bottom: 4px;
 }
 
 .list-subtitle {
     font-size: 13px;
-    color: #9ca3af;
+    color: #94a3b8;
     margin-bottom: 16px;
 }
 
@@ -255,17 +265,17 @@
 
 /* Expandable Question Card */
 .expandable-card {
-    background: white;
+    background: rgba(15, 23, 42, 0.92);
     border-radius: 12px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid rgba(255, 255, 255, 0.18);
     overflow: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .expandable-card.expanded {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border: 1px solid #667eea;
+    box-shadow: 0 4px 12px rgba(2, 6, 23, 0.4);
+    border: 1px solid #38bdf8;
 }
 
 .card-header {
@@ -275,11 +285,11 @@
     padding: 16px 20px;
     cursor: pointer;
     transition: background 0.2s;
-    background: #f9fafb;
+    background: rgba(30, 41, 59, 0.85);
 }
 
 .card-header:hover {
-    background: #f3f4f6;
+    background: rgba(51, 65, 85, 0.9);
 }
 
 .header-left {
@@ -296,7 +306,7 @@
 
 .question-name {
     font-weight: 600;
-    color: #1f2937;
+    color: #f8fafc;
     font-family: 'Fira Code', 'Consolas', monospace;
     font-size: 15px;
 }
@@ -305,7 +315,7 @@
     display: flex;
     gap: 16px;
     font-size: 13px;
-    color: #6b7280;
+    color: #cbd5e1;
 }
 
 .difficulty-badge {
@@ -323,7 +333,7 @@
 
 .expand-icon {
     font-size: 12px;
-    color: #9ca3af;
+    color: #cbd5e1;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -338,8 +348,8 @@
 
 .card-content {
     padding: 24px;
-    border-top: 1px solid #e5e7eb;
-    background: white;
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(15, 23, 42, 0.92);
 }
 
 /* Question Prompt */
@@ -350,7 +360,7 @@
 .prompt-content {
     font-size: 14px;
     line-height: 1.8;
-    color: #374151;
+    color: #e2e8f0;
     white-space: pre-wrap;
 }
 
@@ -362,10 +372,10 @@
 .test-cases-title {
     font-size: 15px;
     font-weight: 600;
-    color: #1f2937;
+    color: #f8fafc;
     margin-bottom: 16px;
     padding-bottom: 8px;
-    border-bottom: 2px solid #e5e7eb;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .examples-list {
@@ -375,19 +385,19 @@
 }
 
 .example {
-    background: #f8fafc;
+    background: rgba(30, 41, 59, 0.95);
     border-radius: 8px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.16);
     overflow: hidden;
 }
 
 .example-header {
     font-size: 13px;
     font-weight: 700;
-    color: #475569;
+    color: #e2e8f0;
     padding: 10px 16px;
-    background: #f1f5f9;
-    border-bottom: 1px solid #e2e8f0;
+    background: rgba(51, 65, 85, 0.95);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 .example-body {
@@ -406,29 +416,30 @@
 .example-label {
     font-size: 13px;
     font-weight: 600;
-    color: #64748b;
+    color: #93c5fd;
     min-width: 60px;
 }
 
 .example-code {
     font-size: 13px;
-    color: #0f172a;
+    color: #e2e8f0;
     font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
-    background: #e2e8f0;
+    background: rgba(15, 23, 42, 0.95);
     padding: 4px 10px;
     border-radius: 4px;
     word-break: break-word;
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .more-test-cases {
     font-size: 13px;
-    color: #64748b;
+    color: #cbd5e1;
     font-style: italic;
     text-align: center;
     padding: 12px;
-    background: #f8fafc;
+    background: rgba(30, 41, 59, 0.95);
     border-radius: 6px;
-    border: 1px dashed #cbd5e1;
+    border: 1px dashed rgba(255, 255, 255, 0.24);
 }
 
 /* Footer Info */
@@ -437,28 +448,22 @@
     flex-wrap: wrap;
     gap: 20px;
     padding-top: 16px;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
     font-size: 13px;
-    color: #6b7280;
-}
-
-.footer-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    color: #cbd5e1;
 }
 
 .footer-label {
     font-weight: 600;
-    color: #9ca3af;
+    color: #e2e8f0;
 }
 
 /* Users Section */
 .users-section {
-    background: white;
+    background: rgba(15, 23, 42, 0.9);
     border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e5e7eb;
+    box-shadow: 0 8px 20px rgba(2, 6, 23, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     overflow: hidden;
 }
 
@@ -476,31 +481,31 @@
     text-align: left;
     font-size: 12px;
     font-weight: 600;
-    color: #6b7280;
+    color: #cbd5e1;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    border-bottom: 1px solid #e5e7eb;
-    background: #f9fafb;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(30, 41, 59, 0.95);
 }
 
 .users-table tr {
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
     transition: background 0.2s;
 }
 
 .users-table tr:hover {
-    background: #f9fafb;
+    background: rgba(255, 255, 255, 0.06);
 }
 
 .users-table td {
     padding: 16px;
     font-size: 14px;
-    color: #374151;
+    color: #e2e8f0;
 }
 
 .username {
     font-weight: 600;
-    color: #1f2937;
+    color: #f8fafc;
 }
 
 .badge {
@@ -508,8 +513,9 @@
     border-radius: 9999px;
     font-size: 12px;
     font-weight: 500;
-    background: #e5e7eb;
-    color: #374151;
+    background: rgba(51, 65, 85, 0.95);
+    color: #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .admin-badge {
@@ -517,7 +523,7 @@
     border-radius: 6px;
     font-size: 12px;
     font-weight: 600;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #4f80ff 0%, #8b5cf6 100%);
     color: white;
     border: none;
     cursor: pointer;
@@ -526,7 +532,7 @@
 
 .admin-badge:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 2px 8px rgba(79, 128, 255, 0.4);
 }
 
 .user-badge {
@@ -534,21 +540,21 @@
     border-radius: 6px;
     font-size: 12px;
     font-weight: 500;
-    background: #f3f4f6;
-    color: #6b7280;
-    border: 1px solid #e5e7eb;
+    background: rgba(51, 65, 85, 0.95);
+    color: #cbd5e1;
+    border: 1px solid rgba(255, 255, 255, 0.24);
     cursor: pointer;
     transition: all 0.2s;
 }
 
 .user-badge:hover {
-    background: #e5e7eb;
+    background: rgba(71, 85, 105, 0.95);
 }
 
 .delete-btn {
     padding: 8px;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
+    background: rgba(127, 29, 29, 0.35);
+    border: 1px solid rgba(239, 68, 68, 0.5);
     border-radius: 6px;
     cursor: pointer;
     font-size: 14px;
@@ -556,8 +562,8 @@
 }
 
 .delete-btn:hover {
-    background: #fee2e2;
-    border-color: #fca5a5;
+    background: rgba(153, 27, 27, 0.45);
+    border-color: rgba(252, 165, 165, 0.65);
 }
 
 /* Loading & Error States */
@@ -567,14 +573,14 @@
     justify-content: center;
     align-items: center;
     height: 60vh;
-    color: #6b7280;
+    color: #cbd5e1;
 }
 
 .spinner {
     width: 40px;
     height: 40px;
-    border: 3px solid #e5e7eb;
-    border-top-color: #667eea;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #67e8f9;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 16px;
@@ -587,12 +593,16 @@
     align-items: center;
     height: 60vh;
     text-align: center;
-    color: #6b7280;
+    color: #cbd5e1;
+}
+
+.error-container h2 {
+    color: #f8fafc;
 }
 
 .back-link {
     margin-top: 16px;
-    color: #667eea;
+    color: #67e8f9;
     text-decoration: none;
     font-weight: 500;
 }
@@ -600,4 +610,3 @@
 .back-link:hover {
     text-decoration: underline;
 }
-
