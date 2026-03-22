@@ -1,10 +1,10 @@
-import {Box, VStack} from "@chakra-ui/react";
+import { Badge, Box, HStack, Text, VStack } from "@chakra-ui/react";
 import {Editor} from "@monaco-editor/react";
 import {useRef, useState, useEffect} from "react";
 import {PYTHON_SNIPPET} from "../constants";
 import Output from "./Output";
 
-const CodeEditor = ({question, onNextQuestion, onEditorRef, onTopicProgressUpdate }) => {
+const CodeEditor = ({question, topicCheckPending = false, onNextQuestion, onEditorRef, onTopicProgressUpdate }) => {
     const editorRef = useRef()
     const [value, setValue] = useState('')
 
@@ -26,7 +26,24 @@ const CodeEditor = ({question, onNextQuestion, onEditorRef, onTopicProgressUpdat
 
     return (
         <Box>
-            <VStack spacing={4}>
+            <VStack spacing={4} align="stretch">
+                <HStack justify="space-between" align="center">
+                    <Text fontSize="sm" color="gray.300" fontWeight="600">
+                        Editor Language
+                    </Text>
+                    <Badge
+                        px={3}
+                        py={1}
+                        borderRadius="full"
+                        colorScheme="cyan"
+                        variant="subtle"
+                        textTransform="none"
+                        fontSize="xs"
+                        fontWeight="700"
+                    >
+                        Python
+                    </Badge>
+                </HStack>
                 <Box w="100%">
                     <Editor
                         height="300px"
@@ -42,6 +59,7 @@ const CodeEditor = ({question, onNextQuestion, onEditorRef, onTopicProgressUpdat
                     <Output
                         editorRef={editorRef}
                         question={question}
+                        topicCheckPending={topicCheckPending}
                         onNextQuestion={onNextQuestion}
                         onTopicProgressUpdate={onTopicProgressUpdate}
                     />
