@@ -2,6 +2,8 @@ import { useState } from "react";
 import {
     Box,
     Button,
+    Checkbox,
+    CheckboxGroup,
     Container,
     FormControl,
     FormLabel,
@@ -9,6 +11,7 @@ import {
     Heading,
     Input,
     Select,
+    SimpleGrid,
     Stack,
     Text,
 } from "@chakra-ui/react";
@@ -41,12 +44,12 @@ function HomePage() {
     });
 
     const handleRegisterChange = (e) => {
-        const { name, value, selectedOptions } = e.target;
-        const fieldValue = name === "knownLanguages"
-            ? Array.from(selectedOptions, (option) => option.value)
-            : value;
+        const { name, value } = e.target;
+        setRegisterForm({ ...registerForm, [name]: value });
+    };
 
-        setRegisterForm({ ...registerForm, [name]: fieldValue });
+    const handleKnownLanguagesChange = (values) => {
+        setRegisterForm((prev) => ({ ...prev, knownLanguages: values }));
     };
 
     const handleLogin = async (e) => {
@@ -259,27 +262,31 @@ function HomePage() {
 
                                 <FormControl>
                                     <FormLabel color="gray.300">Known Languages</FormLabel>
-                                    <Select
-                                        name="knownLanguages"
-                                        value={registerForm.knownLanguages}
-                                        onChange={handleRegisterChange}
-                                        multiple
-                                        h="140px"
-                                        bg="whiteAlpha.100"
+                                    <Box
+                                        p={3}
+                                        borderWidth="1px"
                                         borderColor="whiteAlpha.300"
-                                        color="white"
-                                        _focus={{ borderColor: "cyan.300", boxShadow: "0 0 0 1px #67e8f9" }}
+                                        borderRadius="md"
+                                        bg="whiteAlpha.50"
                                     >
-                                        {LANGUAGE_OPTIONS.map((language) => (
-                                            <option style={{ color: "#111827" }} key={language.value} value={language.value}>
-                                                {language.label}
-                                            </option>
-                                        ))}
-                                    </Select>
+                                        <CheckboxGroup
+                                            value={registerForm.knownLanguages}
+                                            onChange={handleKnownLanguagesChange}
+                                            colorScheme="cyan"
+                                        >
+                                            <SimpleGrid columns={{ base: 2, md: 3 }} spacing={2}>
+                                                {LANGUAGE_OPTIONS.map((language) => (
+                                                    <Checkbox key={language.value} value={language.value} color="gray.100">
+                                                        {language.label}
+                                                    </Checkbox>
+                                                ))}
+                                            </SimpleGrid>
+                                        </CheckboxGroup>
+                                    </Box>
                                     <Text mt={2} fontSize="xs" color="gray.400">
-                                        Use Cmd/Ctrl + click to select multiple languages.
-                                    </Text>
-                                </FormControl>
+                                        Select all languages you know.
+                                     </Text>
+                                 </FormControl>
 
                                 {error && <Box bg="red.900" borderWidth="1px" borderColor="red.500" color="red.200" p={3} borderRadius="md" fontSize="sm">{error}</Box>}
 
