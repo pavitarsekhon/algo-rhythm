@@ -93,14 +93,14 @@ function ChatBox({ editorRef }) {
                     )}
                     <Box>
                         <Text fontSize="lg" fontWeight="700" color="gray.100">AlgoBot</Text>
-                        <Text fontSize="sm" color="gray.400">Your AI Coding Assistant</Text>
+                        <Text fontSize="sm" color="gray.300">Your AI Coding Assistant</Text>
                     </Box>
                 </HStack>
             </Box>
 
             <Box flex="1" overflowY="auto" p={5}>
                 {chat.length === 0 ? (
-                    <Box textAlign="center" py={16} px={5} color="gray.500">
+                    <Box textAlign="center" py={16} px={5} color="gray.300">
                         <Text fontSize="48px" mb={4}>💡</Text>
                         <Text fontSize="sm" lineHeight="1.6">
                             Need help? Ask me for hints, explanations, or coding tips!
@@ -130,15 +130,15 @@ function ChatBox({ editorRef }) {
                                     <Flex>
                                         <Box
                                             maxW="80%"
-                                            bg="whiteAlpha.100"
-                                            color="gray.100"
+                                            bg="rgba(30, 41, 59, 0.9)"
+                                            color="gray.50"
                                             p={4}
                                             borderRadius="16px"
                                             borderBottomLeftRadius="4px"
                                             fontSize="sm"
                                             boxShadow="sm"
                                             borderWidth="1px"
-                                            borderColor="whiteAlpha.200"
+                                            borderColor="whiteAlpha.300"
                                         >
                                             <FormattedMessage content={msg.bot} />
                                         </Box>
@@ -146,9 +146,9 @@ function ChatBox({ editorRef }) {
                                 ) : (
                                     <Flex>
                                         <HStack bg="whiteAlpha.100" px={4} py={3} borderRadius="16px" spacing={1}>
-                                            <Text animation={`${dotPulse} 1.4s infinite`} color="gray.500">●</Text>
-                                            <Text animation={`${dotPulse} 1.4s infinite 0.2s`} color="gray.500">●</Text>
-                                            <Text animation={`${dotPulse} 1.4s infinite 0.4s`} color="gray.500">●</Text>
+                                            <Text animation={`${dotPulse} 1.4s infinite`} color="gray.300">●</Text>
+                                            <Text animation={`${dotPulse} 1.4s infinite 0.2s`} color="gray.300">●</Text>
+                                            <Text animation={`${dotPulse} 1.4s infinite 0.4s`} color="gray.300">●</Text>
                                         </HStack>
                                     </Flex>
                                 )}
@@ -173,7 +173,7 @@ function ChatBox({ editorRef }) {
                         bg="whiteAlpha.100"
                         color="gray.100"
                         borderColor="whiteAlpha.300"
-                        _placeholder={{ color: "gray.500" }}
+                        _placeholder={{ color: "gray.300" }}
                         _focus={{ borderColor: "cyan.300", boxShadow: "0 0 0 1px #67e8f9" }}
                     />
                     <Button
@@ -187,7 +187,7 @@ function ChatBox({ editorRef }) {
                         {isLoading ? "..." : "Send"}
                     </Button>
                 </HStack>
-                <Text fontSize="xs" color="gray.500" mt={2} mb={0} textAlign="center">
+                <Text fontSize="xs" color="gray.400" mt={2} mb={0} textAlign="center">
                     Press Enter to send
                 </Text>
             </Box>
@@ -196,3 +196,4 @@ function ChatBox({ editorRef }) {
 }
 
 export default ChatBox;
+

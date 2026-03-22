@@ -150,7 +150,7 @@ function FormattedMessage({ content }) {
                             lineElements.push(
                                 <strong
                                     key={`bold-${lineIndex}-${patternIndex}`}
-                                    style={{ fontWeight: '700', color: '#111827' }}
+                                    style={{ fontWeight: '700', color: '#f8fafc' }}
                                 >
                                     {pattern.content}
                                 </strong>
@@ -160,12 +160,13 @@ function FormattedMessage({ content }) {
                                 <code
                                     key={`inline-${lineIndex}-${patternIndex}`}
                                     style={{
-                                        background: '#e5e7eb',
-                                        color: '#dc2626',
+                                        background: '#0f172a',
+                                        color: '#f8fafc',
                                         padding: '2px 6px',
                                         borderRadius: '4px',
                                         fontSize: '13px',
-                                        fontFamily: "'Monaco', 'Menlo', 'Ubuntu Mono', monospace"
+                                        fontFamily: "'Monaco', 'Menlo', 'Ubuntu Mono', monospace",
+                                        border: '1px solid #334155'
                                     }}
                                 >
                                     {pattern.content}
@@ -195,9 +196,9 @@ function FormattedMessage({ content }) {
 
                         if (isHeading) {
                             const headingStyles = {
-                                1: { fontSize: '18px', fontWeight: '700', marginTop: '16px', marginBottom: '12px', color: '#111827' },
-                                2: { fontSize: '16px', fontWeight: '700', marginTop: '14px', marginBottom: '10px', color: '#1f2937' },
-                                3: { fontSize: '14px', fontWeight: '700', marginTop: '12px', marginBottom: '8px', color: '#374151' }
+                                1: { fontSize: '18px', fontWeight: '700', marginTop: '16px', marginBottom: '12px', color: '#f8fafc' },
+                                2: { fontSize: '16px', fontWeight: '700', marginTop: '14px', marginBottom: '10px', color: '#e2e8f0' },
+                                3: { fontSize: '14px', fontWeight: '700', marginTop: '12px', marginBottom: '8px', color: '#cbd5e1' }
                             };
                             elements.push(
                                 <div
@@ -224,7 +225,7 @@ function FormattedMessage({ content }) {
                                         style={{
                                             position: 'absolute',
                                             left: '8px',
-                                            color: '#667eea',
+                                            color: '#7dd3fc',
                                             fontWeight: 'bold'
                                         }}
                                     >
@@ -249,7 +250,7 @@ function FormattedMessage({ content }) {
     };
 
     return (
-        <div style={{ color: '#374151' }}>
+        <div style={{ color: '#e2e8f0' }}>
             {parseMessage(content)}
         </div>
     );
