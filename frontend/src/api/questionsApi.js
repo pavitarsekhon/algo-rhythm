@@ -26,6 +26,8 @@ export const getTopicCheckQuestions = (questionId) =>
 export const submitTopicCheckAnswers = (questionId, answers) =>
     API.post("/questions/topic-check/submit", { questionId, answers });
 
+export const getTopicCheckStatus = () => API.get("/questions/topic-check/status");
+
 // Get the user's current question (without advancing to next)
 export const getCurrentQuestion = () => API.get("/questions/current");
 

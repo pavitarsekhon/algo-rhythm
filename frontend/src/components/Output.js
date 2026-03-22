@@ -3,7 +3,7 @@ import { Checkbox } from "@chakra-ui/react";
 import { getTopicCheckQuestions, submitCode, runTestCases, submitTopicCheckAnswers } from "../api/questionsApi";
 import TopicQuizModal from "./TopicQuizModal";
 
-const Output = ({ editorRef, question, onNextQuestion, onTopicProgressUpdate }) => {
+const Output = ({ editorRef, question, topicCheckPending = false, onNextQuestion, onTopicProgressUpdate }) => {
     const [submitResult, setSubmitResult] = useState(null);
     const [runResult, setRunResult] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -69,6 +69,10 @@ const Output = ({ editorRef, question, onNextQuestion, onTopicProgressUpdate }) 
             return;
         }
 
+        if (isLoadingTopicQuiz) {
+            return;
+        }
+
         setTopicQuizError(null);
         setTopicQuizFeedback(null);
         setIsLoadingTopicQuiz(true);
@@ -91,6 +95,34 @@ const Output = ({ editorRef, question, onNextQuestion, onTopicProgressUpdate }) 
                 setIsLoadingTopicQuiz(false);
             });
     };
+
+    useEffect(() => {
+        if (!topicCheckPending || !question?.id || isTopicQuizOpen || isLoadingTopicQuiz) {
+            return;
+        }
+
+        setTopicQuizError(null);
+        setTopicQuizFeedback(null);
+        setIsLoadingTopicQuiz(true);
+        getTopicCheckQuestions(question.id)
+            .then((res) => {
+                const questions = Array.isArray(res.data) ? res.data : [];
+                if (!questions.length) {
+                    setTopicQuizError("Could not generate topic-check questions. Please try again.");
+                    return;
+                }
+
+                setTopicQuizQuestions(questions);
+                setTopicQuizAnswers({});
+                setIsTopicQuizOpen(true);
+            })
+            .catch(() => {
+                setTopicQuizError("Could not generate topic-check questions. Please try again.");
+            })
+            .finally(() => {
+                setIsLoadingTopicQuiz(false);
+            });
+    }, [topicCheckPending, question?.id, isTopicQuizOpen, isLoadingTopicQuiz]);
 
     const handleTopicAnswer = (index, value) => {
         setTopicQuizFeedback(null);
@@ -206,8 +238,8 @@ const Output = ({ editorRef, question, onNextQuestion, onTopicProgressUpdate }) 
                     {isLoading ? "Submitting..." : "Submit"}
                 </button>
 
-                {/* NEXT BUTTON (only visible when passed) */}
-                {submitResult?.allPassed && (
+                {/* NEXT BUTTON (visible after pass or when a topic check is pending) */}
+                {(submitResult?.allPassed || topicCheckPending) && (
                     <button
                         onClick={openTopicQuiz}
                         disabled={isAdvancing || isLoadingTopicQuiz}
@@ -235,10 +267,16 @@ const Output = ({ editorRef, question, onNextQuestion, onTopicProgressUpdate }) 
                             e.target.style.boxShadow = "none";
                         }}
                     >
-                        {isAdvancing || isLoadingTopicQuiz ? "Loading..." : "Next ->"}
+                        {isAdvancing || isLoadingTopicQuiz ? "Loading..." : topicCheckPending ? "Resume topic check ->" : "Next ->"}
                     </button>
                 )}
             </div>
+
+            {topicCheckPending && !submitResult?.allPassed && (
+                <div style={{ color: "#fbbf24", marginBottom: "12px", fontWeight: "600" }}>
+                    Topic check pending: complete it before moving to your next coding question.
+                </div>
+            )}
 
             {topicQuizError && (
                 <div style={{ color: "#dc2626", marginBottom: "12px", fontWeight: "600" }}>

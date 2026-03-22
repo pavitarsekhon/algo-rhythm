@@ -185,6 +185,19 @@ class QuestionController (
         )
     }
 
+    @GetMapping("/topic-check/status")
+    fun getTopicCheckStatus(): TopicCheckStatusResponse {
+        val currentUser = getCurrentUser()
+        val userSession = userSessionRepository.findByUserId(currentUser.id)
+            ?: error("User session not found. Start a session first.")
+
+        return TopicCheckStatusResponse(
+            required = userSession.topicCheckRequired,
+            passed = userSession.topicCheckPassed,
+            currentQuestionId = userSession.currentQuestionId
+        )
+    }
+
     data class CodeSubmissionRequest(
         val code: String,
         val language: String,
@@ -229,6 +242,12 @@ class QuestionController (
         val totalCount: Int,
         val topicProgress: Int,
         val message: String
+    )
+
+    data class TopicCheckStatusResponse(
+        val required: Boolean,
+        val passed: Boolean,
+        val currentQuestionId: Long?
     )
 
     private fun getCurrentUser() =
