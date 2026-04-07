@@ -16,7 +16,6 @@ function Layout({ children, isAdmin, isLoggedIn, onLogout }) {
 
     return (
         <div style={{ minHeight: "100vh", background: "#0b1220" }}>
-            {/* Notion-style Sidebar */}
             <Sidebar
                 isLoggedIn={isLoggedIn}
                 isAdmin={isAdmin}

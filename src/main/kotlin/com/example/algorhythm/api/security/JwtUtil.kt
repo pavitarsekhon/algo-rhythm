@@ -23,7 +23,7 @@ class JwtUtil {
         return try {
             val claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token)
             claims.body.subject
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }

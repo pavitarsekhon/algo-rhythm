@@ -27,7 +27,7 @@ class Question (
     val prompt: String,
 
     @Column(name = "function_name")
-    val functionName: String? = null,  // e.g., "twoSum" - optional, for reference only
+    val functionName: String? = null,
 
     @Column(columnDefinition = "TEXT")
     val starterCode: String? = null,

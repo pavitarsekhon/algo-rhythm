@@ -85,7 +85,7 @@ class SecurityConfig(private val jwtUtil: JwtUtil) {
                         val auth = UsernamePasswordAuthenticationToken(username, null, emptyList())
                         SecurityContextHolder.getContext().authentication = auth
                     }
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     // Invalid token - continue without auth
                 }
             }

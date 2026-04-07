@@ -18,9 +18,8 @@ class AdminController(
 ) {
     private val logger = LoggerFactory.getLogger(AdminController::class.java)
 
-    /**
-     * Check if the current user is an admin
-     */
+
+    // Check if the current user is an admin
     @GetMapping("/check")
     fun checkAdminStatus(): ResponseEntity<AdminCheckResponse> {
         val username = SecurityContextHolder.getContext().authentication?.name
@@ -30,9 +29,7 @@ class AdminController(
         return ResponseEntity.ok(AdminCheckResponse(isAdmin))
     }
 
-    /**
-     * Get admin dashboard statistics
-     */
+    // Get admin dashboard statistics
     @GetMapping("/stats")
     fun getStats(): ResponseEntity<AdminStatsDTO> {
         if (!isCurrentUserAdmin()) {
@@ -41,9 +38,7 @@ class AdminController(
         return ResponseEntity.ok(adminService.getStats())
     }
 
-    /**
-     * Get all users
-     */
+     // Get all users
     @GetMapping("/users")
     fun getAllUsers(): ResponseEntity<List<UserDTO>> {
         if (!isCurrentUserAdmin()) {
@@ -52,9 +47,7 @@ class AdminController(
         return ResponseEntity.ok(adminService.getAllUsers())
     }
 
-    /**
-     * Get user by ID
-     */
+    // Get user by ID
     @GetMapping("/users/{userId}")
     fun getUserById(@PathVariable userId: Long): ResponseEntity<UserDTO> {
         if (!isCurrentUserAdmin()) {
@@ -65,9 +58,7 @@ class AdminController(
         return ResponseEntity.ok(user)
     }
 
-    /**
-     * Update user admin status
-     */
+    // Update user admin status
     @PutMapping("/users/{userId}/admin")
     fun setAdminStatus(
         @PathVariable userId: Long,
@@ -81,9 +72,7 @@ class AdminController(
         return ResponseEntity.ok(user)
     }
 
-    /**
-     * Delete a user
-     */
+    // Delete a user
     @DeleteMapping("/users/{userId}")
     fun deleteUser(@PathVariable userId: Long): ResponseEntity<Void> {
         if (!isCurrentUserAdmin()) {
@@ -96,9 +85,7 @@ class AdminController(
         }
     }
 
-    /**
-     * Generate new questions using AI
-     */
+    // Generate new questions using AI
     @PostMapping("/questions/generate")
     fun generateQuestions(@RequestBody request: GenerateQuestionsRequest): ResponseEntity<GenerateQuestionsResponse> {
         logger.info("Generate questions request received: count=${request.count}, difficulty=${request.difficulty}")

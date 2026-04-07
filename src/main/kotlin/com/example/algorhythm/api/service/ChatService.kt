@@ -210,9 +210,10 @@ class ChatService(
 
         for (block in codeBlocks) {
             val lines = block.lines().filter { it.isNotBlank() }
-
-            // If a code block has 5+ non-blank lines and contains a return statement,
-            // it's likely a complete implementation rather than an illustrative snippet
+            /**
+             * If a code block has 5+ non-blank lines and contains a return statement,
+             * it's likely a complete implementation rather than an illustrative snippet
+             */
             if (lines.size >= 5 && block.contains("return ")) {
 
                 // Check if it contains the target function definition
@@ -232,8 +233,6 @@ class ChatService(
                     }
                 }
 
-                // Even without a function name match, a large code block with control flow
-                // and return statements is suspicious
                 val hasControlFlow = block.contains("for ") || block.contains("while ") ||
                         block.contains("if ") || block.contains(".forEach") || block.contains(".map")
                 if (lines.size >= 8 && hasControlFlow) {
