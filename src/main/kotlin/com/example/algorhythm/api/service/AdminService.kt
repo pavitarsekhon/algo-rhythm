@@ -1,8 +1,5 @@
 package com.example.algorhythm.api.service
 
-import com.example.algorhythm.api.domain.Question
-import com.example.algorhythm.api.domain.User
-import com.example.algorhythm.api.domain.UserSession
 import com.example.algorhythm.api.repository.ChatMessageRepository
 import com.example.algorhythm.api.repository.QuestionRepository
 import com.example.algorhythm.api.repository.UserProgressRepository
@@ -77,10 +74,6 @@ class AdminService(
         chatMessageRepository.deleteByUserId(userId)
         userRepository.deleteById(userId)
         return true
-    }
-
-    fun getAllQuestions(): List<Question> {
-        return questionRepository.findAll()
     }
 
     fun getStats(): AdminStatsDTO {

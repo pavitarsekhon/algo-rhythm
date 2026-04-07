@@ -23,7 +23,7 @@ data class ChatMessage(
     val questionId: Long? = null,
 
     @Column(columnDefinition = "TEXT")
-    val sender: String,   // "user" or "bot"
+    val sender: String,
 
     @Column(columnDefinition = "TEXT")
     val message: String,

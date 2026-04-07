@@ -21,7 +21,7 @@ class UserController(
 
     @GetMapping("/profile")
     fun getProfile(): ResponseEntity<UserProfileResponse> {
-        val username = SecurityContextHolder.getContext().authentication?.principal as? String
+        val username = SecurityContextHolder.getContext().authentication?.name
             ?: return ResponseEntity.status(401).build()
 
         val user = userRepository.findByUsername(username).orElse(null)

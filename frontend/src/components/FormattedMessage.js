@@ -6,13 +6,8 @@ import React from 'react';
  */
 function FormattedMessage({ content }) {
     const parseMessage = (text) => {
-        const parts = [];
-        let currentIndex = 0;
-
         // Regex patterns
         const codeBlockRegex = /```[\s\S]*?```/g;
-        const boldRegex = /\*\*(.+?)\*\*/g;
-        const inlineCodeRegex = /`([^`]+)`/g;
 
         // Find all code blocks first (highest priority)
         const codeBlocks = [];
@@ -80,7 +75,6 @@ function FormattedMessage({ content }) {
                 lines.forEach((line, lineIndex) => {
                     const lineElements = [];
                     let lineText = line;
-                    let processedUpTo = 0;
 
                     // Check if it's a heading
                     const headingMatch = line.match(/^(#{1,3})\s+(.+)$/);

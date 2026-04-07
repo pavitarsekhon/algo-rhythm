@@ -13,9 +13,7 @@ import org.springframework.web.reactive.function.client.bodyToMono
 @Service
 class Judge0Service(
     private val webClient: WebClient,
-    private val questionRepository: QuestionRepository,
     private val ioPairRepository: IOPairRepository,
-    private val userSessionRepository: UserSessionRepository,
     private val userSessionService: UserSessionService
 ) {
     fun runCode(code: String, language: String, input: String? = null): Judge0ResultResponse {
