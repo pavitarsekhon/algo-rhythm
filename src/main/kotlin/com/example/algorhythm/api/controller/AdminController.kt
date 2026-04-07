@@ -23,7 +23,7 @@ class AdminController(
      */
     @GetMapping("/check")
     fun checkAdminStatus(): ResponseEntity<AdminCheckResponse> {
-        val username = SecurityContextHolder.getContext().authentication?.principal as? String
+        val username = SecurityContextHolder.getContext().authentication?.name
             ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
 
         val isAdmin = adminService.isAdmin(username)
@@ -159,7 +159,7 @@ class AdminController(
     private fun isCurrentUserAdmin(): Boolean {
         val auth = SecurityContextHolder.getContext().authentication
         logger.info("Auth object: $auth, principal: ${auth?.principal}, type: ${auth?.principal?.javaClass}")
-        val username = auth?.principal as? String
+        val username = auth?.name
         if (username == null) {
             logger.warn("Username is null from security context")
             return false

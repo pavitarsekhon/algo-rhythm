@@ -124,9 +124,6 @@ class QuestionController (
         return judge0Service.runTestCases(request, currentUser.id)
     }
 
-    @PostMapping("/run")
-    fun runCode(@RequestBody request: RunCodeRequest): Judge0ResultResponse = judge0Service.runCode(request.code, request.language, request.input)
-
     @PostMapping("/topic-check")
     fun generateTopicCheck(@RequestBody request: TopicCheckRequest): List<TopicCheckQuestionResponse> {
         getCurrentUser() // require authenticated user

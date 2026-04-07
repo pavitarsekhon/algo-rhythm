@@ -2,9 +2,6 @@ import API from "./axiosConfig";
 
 const PYTHON_LANGUAGE = "python";
 
-export const runSourceCode = (sourceCode) =>
-    API.post("/questions/run", { language: PYTHON_LANGUAGE, code: sourceCode });
-
 export const runTestCases = (code, question, customTestCases = null) =>
     API.post("/questions/run-tests", {
         language: PYTHON_LANGUAGE,

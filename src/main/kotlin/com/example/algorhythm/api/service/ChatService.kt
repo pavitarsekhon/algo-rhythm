@@ -24,14 +24,14 @@ class ChatService(
     @Value("\${groq.model:llama-3.3-70b-versatile}") private val groqModel: String
 ) {
 
-    private val geminiSemaphore = Semaphore(1)
+    private val semaphore = Semaphore(1)
 
     @Volatile
     private var lastRequestTime = 0L
 
     fun chat(userId: Long, userMessage: String, userCode: String?): String {
 
-        geminiSemaphore.acquire()
+        semaphore.acquire()
         try {
             val now = System.currentTimeMillis()
             val elapsed = now - lastRequestTime
@@ -150,7 +150,7 @@ class ChatService(
                 .block()!!
 
         } finally {
-            geminiSemaphore.release()
+            semaphore.release()
         }
     }
 
